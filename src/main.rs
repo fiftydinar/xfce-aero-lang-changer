@@ -861,12 +861,13 @@ fn main() {
         for (i, (human, loc)) in avail.iter().enumerate() {
             let h = human.to_lowercase();
             let l = loc.to_lowercase();
+            let h_name = h.split(" (").next().unwrap_or(&h);
             if q.is_empty()
                 || h.contains(&q) || l.contains(&q)
                 || h.contains(&q_alt) || l.contains(&q_alt)
-                || (!q.is_empty() && strsim::levenshtein(&q, &h) <= max_dist)
+                || (!q.is_empty() && strsim::levenshtein(&q, h_name) <= max_dist)
                 || (!q.is_empty() && strsim::levenshtein(&q, &l) <= max_dist)
-                || (!q.is_empty() && strsim::levenshtein(&q_alt, &h) <= max_dist)
+                || (!q.is_empty() && strsim::levenshtein(&q_alt, h_name) <= max_dist)
                 || (!q.is_empty() && strsim::levenshtein(&q_alt, &l) <= max_dist)
             {
                 new_vis.push(i);
