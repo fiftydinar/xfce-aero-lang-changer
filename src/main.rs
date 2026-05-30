@@ -470,6 +470,22 @@ fn logout_xfce() {
     Command::new("xfce4-session-logout").arg("--logout").spawn().ok();
 }
 
+fn draw_aero_header(w: i32, h: i32) {
+    for y in 0..h {
+        let t = y as f64 / h as f64;
+        let top_glow = (1.0 - t * 2.0).clamp(0.0, 1.0).powi(2) * 6.0;
+        let sheen = (-((t - 0.20).powi(2)) / 0.025).exp() * 8.0;
+        let dark = t.powi(2) * 5.0;
+        let v = top_glow + sheen - dark;
+        let r = (10.0 + v) as u8;
+        let g = (130.0 + v) as u8;
+        let b = (116.0 + v) as u8;
+        fltk::draw::draw_rect_fill(0, y, w, 1, Color::from_rgb(r, g, b));
+    }
+    fltk::draw::set_draw_color(AERO_BORDER);
+    fltk::draw::draw_rect_fill(0, h - 1, w, 1, AERO_BORDER);
+}
+
 fn show_aero_alert(t: &Trans, title: &str, msg: &str) {
     let screen = app::screen_size();
     let dlg_w = 420;
@@ -486,18 +502,11 @@ fn show_aero_alert(t: &Trans, title: &str, msg: &str) {
     let mut header = Frame::new(0, 0, dlg_w, 36, "");
     header.set_frame(FrameType::NoBox);
     header.draw(move |f| {
-        let w = f.w();
-        let h = f.h();
-        for y in 0..h {
-            let t = y as f64 / h as f64;
-            let g = (100u8 as f64 * (1.0 - t) + 148u8 as f64 * t) as u8;
-            let b = (92u8 as f64 * (1.0 - t) + 136u8 as f64 * t) as u8;
-            fltk::draw::draw_rect_fill(0, y, w, 1, Color::from_rgb(0, g, b));
-        }
+        draw_aero_header(f.w(), f.h());
         let bold = fltk::enums::Font::by_name("sans-serif Bold");
         fltk::draw::set_font(bold, 13);
         fltk::draw::set_draw_color(Color::White);
-        fltk::draw::draw_text2(&header_title, 0, 0, w, h, Align::Center | Align::Inside);
+        fltk::draw::draw_text2(&header_title, 0, 0, f.w(), f.h(), Align::Center | Align::Inside);
     });
 
     let mut buf = TextBuffer::default();
@@ -538,18 +547,11 @@ fn show_aero_msg(t: &Trans, human_name: &str, locale: &str) -> Option<i32> {
     let mut header = Frame::new(0, 0, dlg_w, 30, "");
     header.set_frame(FrameType::NoBox);
     header.draw(move |f| {
-        let w = f.w();
-        let h = f.h();
-        for y in 0..h {
-            let t = y as f64 / h as f64;
-            let g = (100u8 as f64 * (1.0 - t) + 148u8 as f64 * t) as u8;
-            let b = (92u8 as f64 * (1.0 - t) + 136u8 as f64 * t) as u8;
-            fltk::draw::draw_rect_fill(0, y, w, 1, Color::from_rgb(0, g, b));
-        }
+        draw_aero_header(f.w(), f.h());
         let bold = fltk::enums::Font::by_name("sans-serif Bold");
         fltk::draw::set_font(bold, 13);
         fltk::draw::set_draw_color(Color::White);
-        fltk::draw::draw_text2(&header_label, 0, 0, w, h, Align::Center | Align::Inside);
+        fltk::draw::draw_text2(&header_label, 0, 0, f.w(), f.h(), Align::Center | Align::Inside);
     });
 
     let escaped_locale = locale.replace("@", "@@");
@@ -699,25 +701,15 @@ fn main() {
     let mut header = Frame::new(0, 0, buf_w, 56, "");
     header.set_frame(FrameType::NoBox);
     header.draw(move |f| {
-        let w = f.w();
-        let h = f.h();
-        for y in 0..h {
-            let t = y as f64 / h as f64;
-            let r = (0x00u8 as f64 * (1.0 - t) + 0x00u8 as f64 * t) as u8;
-            let g = (100u8 as f64 * (1.0 - t) + 148u8 as f64 * t) as u8;
-            let b = (92u8 as f64 * (1.0 - t) + 136u8 as f64 * t) as u8;
-            fltk::draw::draw_rect_fill(0, y, w, 1, Color::from_rgb(r, g, b));
-        }
+        draw_aero_header(f.w(), f.h());
         let bold = fltk::enums::Font::by_name("sans-serif Bold");
         fltk::draw::set_font(bold, 16);
         fltk::draw::set_draw_color(Color::White);
-        fltk::draw::draw_text2(&header_title, 0, 6, w, 24, Align::Center | Align::Inside);
+        fltk::draw::draw_text2(&header_title, 0, 6, f.w(), 24, Align::Center | Align::Inside);
         let reg = fltk::enums::Font::by_name("sans-serif");
         fltk::draw::set_font(reg, 11);
         fltk::draw::set_draw_color(Color::from_hex(0xA0D0CC));
-        fltk::draw::draw_text2(&header_subtitle, 0, 32, w, 20, Align::Center | Align::Inside);
-        fltk::draw::set_draw_color(AERO_BORDER);
-        fltk::draw::draw_rect_fill(0, h - 1, w, 1, AERO_BORDER);
+        fltk::draw::draw_text2(&header_subtitle, 0, 32, f.w(), 20, Align::Center | Align::Inside);
     });
 
     let body_y = 68;
