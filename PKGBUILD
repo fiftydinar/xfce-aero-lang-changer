@@ -10,7 +10,7 @@ license=('Apache-2.0')
 depends=('fltk')
 makedepends=('cargo' 'make' 'cmake')
 source=("xfce-aero-lang-changer-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/tags/v$pkgver.tar.gz")
-sha512sums=('56aeeb914bfc0f026c31ae26f9c0e4e09a46cadb394d2509afbfbb5fdf546500094d13a86e9b34f49faaea1d10e6c5914b0e5d6ba4bdca55a7c4ca749aaf2fb3')
+sha512sums=('c238f3117f7288993f48ebf31223dcc5a17ec4122eceee4262bcdac2a70c893efc2e429fcb3b29dc8ceaa6ced63e04bb7f97c21b9f94d6bcdf1e191421df0c77')
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
