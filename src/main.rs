@@ -473,14 +473,9 @@ fn logout_xfce() {
 fn draw_aero_header(w: i32, h: i32) {
     for y in 0..h {
         let t = y as f64 / h as f64;
-        let top_glow = (1.0 - t * 2.0).clamp(0.0, 1.0).powi(2) * 6.0;
-        let sheen = (-((t - 0.20).powi(2)) / 0.025).exp() * 8.0;
-        let dark = t.powi(2) * 5.0;
-        let v = top_glow + sheen - dark;
-        let r = (10.0 + v) as u8;
-        let g = (130.0 + v) as u8;
-        let b = (116.0 + v) as u8;
-        fltk::draw::draw_rect_fill(0, y, w, 1, Color::from_rgb(r, g, b));
+        let g = (100.0 + 48.0 * t) as u8;
+        let b = (92.0 + 44.0 * t) as u8;
+        fltk::draw::draw_rect_fill(0, y, w, 1, Color::from_rgb(0, g, b));
     }
     fltk::draw::set_draw_color(AERO_BORDER);
     fltk::draw::draw_rect_fill(0, h - 1, w, 1, AERO_BORDER);
