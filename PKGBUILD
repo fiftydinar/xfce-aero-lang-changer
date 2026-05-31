@@ -7,14 +7,26 @@ pkgdesc="GUI language switcher for XFCE with Aero-style theming"
 arch=('x86_64')
 url="https://github.com/fiftydinar/xfce-aero-lang-changer"
 license=('Apache-2.0')
-depends=('fltk')
-makedepends=('cargo' 'make' 'cmake')
+
+# Build option: set _link=static for static linking (bundled fltk, no runtime dep)
+#               set _link=dynamic for dynamic linking (system fltk)
+# _link=static is the default, because on Arch, fltk-git fails to build, and latest fltk is required, not the stable one
+_link=${_link:-static}
+
+if [ "$_link" = "static" ]; then
+  depends=()
+  makedepends=('cargo' 'make' 'cmake')
+else
+  depends=('fltk')
+  makedepends=('cargo' 'make' 'cmake')
+fi
+
 source=("xfce-aero-lang-changer-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/tags/v$pkgver.tar.gz")
 sha512sums=('b0c9994279f14eb92c0a0dd5fa739764f8691854bbade5f55fc835356ee0433eae5654fa8f0c0b044d92350db23af73039933e160e769f65889bea5dc8180e44')
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
-  make  
+  make LINK="$_link"
 }
 
 package() {
