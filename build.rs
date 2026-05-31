@@ -1,4 +1,10 @@
 fn main() {
+    // LLD cannot resolve glibc internals (_dl_x86_cpu_features) from static
+    // FLTK on glibc, so force GNU ld.  On musl there's no such issue.
+    if std::env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("gnu") {
+        println!("cargo:rustc-link-arg=-fuse-ld=bfd");
+    }
+
     let output = std::process::Command::new("fltk-config")
         .args(["--use-images", "--ldstaticflags"])
         .output();
