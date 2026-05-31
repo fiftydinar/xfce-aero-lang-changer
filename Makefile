@@ -34,6 +34,7 @@ all: build
 build:
 	@if [ ! -f build.rs ]; then \
 	  printf '%s\n' 'fn main() {' \
+	    '    #[cfg(target_os = "linux")]' \
 	    '    println!("cargo:rustc-link-arg=-fuse-ld=bfd");' \
 	    '    let output = std::process::Command::new("fltk-config")' \
 	    '        .args(["--use-images", "--ldstaticflags"])' \

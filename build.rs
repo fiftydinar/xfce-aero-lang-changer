@@ -1,6 +1,8 @@
 fn main() {
-    // LLD fails to link libfltk.a on Arch (_dl_x86_cpu_features),
-    // force GNU ld which handles glibc internals correctly.
+    // On glibc Linux, LLD cannot resolve _dl_x86_cpu_features and other
+    // glibc internals referenced by the static FLTK library. Force GNU ld
+    // to avoid this. Harmless on musl or where GNU ld is already the default.
+    #[cfg(target_os = "linux")]
     println!("cargo:rustc-link-arg=-fuse-ld=bfd");
 
     let output = std::process::Command::new("fltk-config")
