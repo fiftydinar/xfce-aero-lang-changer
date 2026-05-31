@@ -1,4 +1,8 @@
 fn main() {
+    // If bundled feature is enabled, fltk-sys handles everything.
+    if std::env::var("CARGO_FEATURE_BUNDLED").is_ok() {
+        return;
+    }
     let output = std::process::Command::new("fltk-config")
         .args(["--use-images", "--ldstaticflags"])
         .output();
