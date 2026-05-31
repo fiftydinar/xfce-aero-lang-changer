@@ -10,10 +10,6 @@ BINARY := target/$(TARGET)/xfce-aero-lang-changer
 LINK ?= dynamic
 CARGO_ARGS := --release
 
-# Detect available compilers, prioritizing clang, then gcc, then fallback to cc/c++
-COMPILER_CC := $(shell command -v clang || command -v gcc || echo cc)
-COMPILER_CXX := $(shell command -v clang++ || command -v g++ || echo c++)
-
 ifeq ($(LINK),dynamic)
   CARGO_ARGS += --no-default-features
   CARGO_ARGS += --features fltk/system-fltk
