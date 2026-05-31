@@ -10,8 +10,8 @@ license=('Apache-2.0')
 
 # Build option: set _link=static for static linking (bundled fltk)
 #               set _link=dynamic for dynamic linking (system fltk)
-# _link=static is the default here, because on Arch dynamic build does not compile successfully in my testing (complains about -fno-omit-frame-pointer)
-# _link=dynamic is the default in upstream repo
+# _link=static is the default here
+# _link=dynamic is the default in upstream repo, not used here because on Arch it does not compile successfully in my testing (complains about -fno-omit-frame-pointer)
 _link=${_link:-static}
 
 # fltk-sys dynamically links against these regardless of bundling
