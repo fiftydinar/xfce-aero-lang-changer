@@ -31,6 +31,27 @@ sha512sums=('275491f257db33f43b286682f37c617445f53327a3e2e6f4b335ad2db0c6e54e245
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
+  # Ensure build.rs exists — it queries fltk-config for the full set
+  # of transitive link flags (Wayland, DBus, libdecor, etc.) that
+  # Arch's system libfltk.a requires but the fltk-sys build script
+  # does not emit on its own.
+  printf '%s\n' 'fn main() {' \
+    '    if let Ok(output) = std::process::Command::new("fltk-config")' \
+    '        .args(["--use-images", "--ldstaticflags"])' \
+    '        .output()' \
+    '    {' \
+    '        let flags = String::from_utf8_lossy(&output.stdout);' \
+    '        for flag in flags.split_whitespace() {' \
+    '            if let Some(lib) = flag.strip_prefix("-l") {' \
+    '                println!("cargo:rustc-link-lib=dylib={}", lib);' \
+    '            } else if let Some(dir) = flag.strip_prefix("-L") {' \
+    '                println!("cargo:rustc-link-search=native={}", dir);' \
+    '            }' \
+    '        }' \
+    '        println!("cargo:rustc-link-lib=static=fltk");' \
+    '        println!("cargo:rustc-link-lib=static=fltk_images");' \
+    '    }' \
+    '}' > build.rs
   make LINK="$_link"
 }
 
