@@ -1,4 +1,8 @@
 fn main() {
+    // LLD fails to link libfltk.a on Arch (_dl_x86_cpu_features),
+    // force GNU ld which handles glibc internals correctly.
+    println!("cargo:rustc-link-arg=-fuse-ld=bfd");
+
     let output = std::process::Command::new("fltk-config")
         .args(["--use-images", "--ldstaticflags"])
         .output();

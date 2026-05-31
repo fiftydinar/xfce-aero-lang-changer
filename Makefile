@@ -34,6 +34,7 @@ all: build
 build:
 	@if [ ! -f build.rs ]; then \
 	  printf '%s\n' 'fn main() {' \
+	    '    println!("cargo:rustc-link-arg=-fuse-ld=bfd");' \
 	    '    let output = std::process::Command::new("fltk-config")' \
 	    '        .args(["--use-images", "--ldstaticflags"])' \
 	    '        .output();' \
@@ -59,7 +60,7 @@ build:
 	    '    }' \
 	    '}' > build.rs; \
 	fi
-	$(if $(filter dynamic,$(LINK)),RUSTFLAGS="$(RUSTFLAGS) $(FLTK_LDIRS) $(FLTK_LIBS)" )cargo build $(CARGO_ARGS)
+	$(if $(filter dynamic,$(LINK)),RUSTFLAGS="$(RUSTFLAGS) $(FLTK_LDIRS) $(FLTK_LIBS) -C link-arg=-fuse-ld=bfd" )cargo build $(CARGO_ARGS)
 
 $(BINARY): build
 
