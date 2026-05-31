@@ -25,7 +25,7 @@ endif
 all: build
 
 build:
-	CC=$(COMPILER_CC) CXX=$(COMPILER_CXX) cargo build $(CARGO_ARGS)
+	cargo build $(CARGO_ARGS)
 
 $(BINARY): build
 
