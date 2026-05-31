@@ -32,6 +32,25 @@ endif
 all: build
 
 build:
+	@if [ ! -f build.rs ]; then \
+	  printf '%s\n' 'fn main() {' \
+	    '    if let Ok(output) = std::process::Command::new("fltk-config")' \
+	    '        .args(["--use-images", "--ldstaticflags"])' \
+	    '        .output()' \
+	    '    {' \
+	    '        let flags = String::from_utf8_lossy(&output.stdout);' \
+	    '        for flag in flags.split_whitespace() {' \
+	    '            if let Some(lib) = flag.strip_prefix("-l") {' \
+	    '                println!("cargo:rustc-link-lib=dylib={}", lib);' \
+	    '            } else if let Some(dir) = flag.strip_prefix("-L") {' \
+	    '                println!("cargo:rustc-link-search=native={}", dir);' \
+	    '            }' \
+	    '        }' \
+	    '        println!("cargo:rustc-link-lib=static=fltk");' \
+	    '        println!("cargo:rustc-link-lib=static=fltk_images");' \
+	    '    }' \
+	    '}' > build.rs; \
+	fi
 	$(if $(filter dynamic,$(LINK)),RUSTFLAGS="$(RUSTFLAGS) $(FLTK_LDIRS) $(FLTK_LIBS)" )cargo build $(CARGO_ARGS)
 
 $(BINARY): build
