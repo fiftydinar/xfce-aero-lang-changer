@@ -23,6 +23,15 @@ ifeq ($(LINK),dynamic)
     | tr ' ' '\n' | grep '^-l' | sed 's/^-l/-l dylib=/' | tr '\n' ' ')
   FLTK_LDIRS := $(shell echo '$(FLTK_RAW)' \
     | tr ' ' '\n' | grep '^-L' | tr '\n' ' ')
+  
+  # Detect if we need the GNU-specific linker workaround
+  # We check if 'gcc -dumpmachine' contains 'gnu' (e.g., x86_64-pc-linux-gnu)
+  IS_GNU := $(shell gcc -dumpmachine 2>/dev/null | grep -q 'gnu' && echo 1)
+  
+  ifeq ($(IS_GNU),1)
+    # Use gcc as linker to bypass Rust's default LLD wrapper on glibc
+    RUSTFLAGS += -C linker=gcc -C link-arg=-fuse-ld=bfd
+  endif
 else
   CARGO_ARGS += --features bundled
 endif
