@@ -8,13 +8,17 @@ arch=('x86_64')
 url="https://github.com/fiftydinar/xfce-aero-lang-changer"
 license=('Apache-2.0')
 
-# Build option: set _link=static for static linking (bundled fltk, no runtime dep)
+# Build option: set _link=static for static linking (bundled fltk)
 #               set _link=dynamic for dynamic linking (system fltk)
 # _link=static is the default, because on Arch, fltk-git fails to build, and latest fltk is required, not the stable one
 _link=${_link:-static}
 
+# fltk-sys dynamically links against these regardless of bundling
+_x11_libs=('libx11' 'libxext' 'libxinerama' 'libxcursor' 'libxrender' 'libxfixes' 'libxft')
+_x11_deps=("${_x11_libs[@]}" 'fontconfig' 'pango' 'cairo' 'glib2')
+
 if [ "$_link" = "static" ]; then
-  depends=()
+  depends=("${_x11_deps[@]}")
   makedepends=('cargo' 'make' 'cmake')
 else
   depends=('fltk')
