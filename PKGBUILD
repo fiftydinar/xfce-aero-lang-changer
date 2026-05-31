@@ -10,7 +10,7 @@ license=('Apache-2.0')
 
 # Build option: set _link=static for static linking (bundled fltk)
 #               set _link=dynamic for dynamic linking (system fltk)
-# _link=static is the default here, because on Arch, fltk-git fails to build, and latest fltk is required, not the stable one
+# _link=static is the default here, because on Arch dynamic build does not compile successfully in my testing
 # _link=dynamic is the default in upstream repo
 _link=${_link:-static}
 
