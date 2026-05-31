@@ -9,14 +9,30 @@ BINARY := target/$(TARGET)/xfce-aero-lang-changer
 # Linking mode: static (bundled fltk) or dynamic (system fltk)
 LINK ?= dynamic
 CARGO_ARGS := --release
-CARGO_ARGS += $(if $(filter dynamic,$(LINK)),--no-default-features --features fltk/system-fltk --features fltk/system-libjpeg --features fltk/system-libpng --features fltk/system-zlib,--features bundled)
+
+ifeq ($(LINK),dynamic)
+  CARGO_ARGS += --no-default-features
+  CARGO_ARGS += --features fltk/system-fltk
+  CARGO_ARGS += --features fltk/system-libjpeg
+  CARGO_ARGS += --features fltk/system-libpng
+  CARGO_ARGS += --features fltk/system-zlib
+  # Query system FLTK for all needed link flags (distro-agnostic)
+  FLTK_RAW := $(shell fltk-config --ldstaticflags 2>/dev/null)
+  FLTK_LIBS := $(shell echo '$(FLTK_RAW)' \
+    | sed 's|/[^ ]*libfltk\.a[^ ]*||g' \
+    | tr ' ' '\n' | grep '^-l' | sed 's/^-l/-l dylib=/' | tr '\n' ' ')
+  FLTK_LDIRS := $(shell echo '$(FLTK_RAW)' \
+    | tr ' ' '\n' | grep '^-L' | tr '\n' ' ')
+else
+  CARGO_ARGS += --features bundled
+endif
 
 .PHONY: all build install uninstall clean
 
 all: build
 
 build:
-	$(if $(filter dynamic,$(LINK)),RUSTFLAGS="$(RUSTFLAGS) -L /usr/lib" )cargo build $(CARGO_ARGS)
+	$(if $(filter dynamic,$(LINK)),RUSTFLAGS="$(RUSTFLAGS) $(FLTK_LDIRS) $(FLTK_LIBS)" )cargo build $(CARGO_ARGS)
 
 $(BINARY): build
 
