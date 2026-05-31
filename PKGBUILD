@@ -27,7 +27,7 @@ else
 fi
 
 source=("xfce-aero-lang-changer-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/tags/v$pkgver.tar.gz")
-sha512sums=('67e1a434b3d161f6efdad266248c40c61ef83e809491d8af812e64484ce99b4cc88b3143cbe7a0f3f13d82a681b98312412d5268383cdbda4e389ac83c8d469b')
+sha512sums=('081c41827be6c404b7e84455f690766ef8fef98eb0da3a1b5c2a776f172b1bf65d0112e5ba76184a3c77d9e757e7bcdeb877dbfe8f0df9b239d38ad1ed163a33')
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
