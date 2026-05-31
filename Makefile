@@ -25,8 +25,8 @@ ifeq ($(LINK),dynamic)
     | tr ' ' '\n' | grep '^-L' | tr '\n' ' ')
   
   # Detect if we need the GNU-specific linker workaround
-  # We check if 'gcc -dumpmachine' contains 'gnu' (e.g., x86_64-pc-linux-gnu)
-  IS_GNU := $(shell gcc -dumpmachine 2>/dev/null | grep -q 'gnu' && echo 1)
+  # We check if 'rustc --print cfg' contains 'target_env="gnu"'
+  IS_GNU := $(shell rustc --print cfg 2>/dev/null | grep -q 'target_env="gnu"' && echo 1)
   
   ifeq ($(IS_GNU),1)
     # Use gcc as linker to bypass Rust's default LLD wrapper on glibc
@@ -41,37 +41,7 @@ endif
 all: build
 
 build:
-	@if [ ! -f build.rs ]; then \
-	  printf '%s\n' 'fn main() {' \
-	    '    if std::env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("gnu") {' \
-	    '        println!("cargo:rustc-link-arg=-fuse-ld=bfd");' \
-	    '    }' \
-	    '    let output = std::process::Command::new("fltk-config")' \
-	    '        .args(["--use-images", "--ldstaticflags"])' \
-	    '        .output();' \
-	    '    let Ok(output) = output else { return };' \
-	    '    let flags = String::from_utf8_lossy(&output.stdout);' \
-	    '    let mut lib_dirs: Vec<&str> = Vec::new();' \
-	    '    let mut libs: Vec<&str> = Vec::new();' \
-	    '    for flag in flags.split_whitespace() {' \
-	    '        if let Some(dir) = flag.strip_prefix("-L") {' \
-	    '            lib_dirs.push(dir);' \
-	    '            println!("cargo:rustc-link-search=native={}", dir);' \
-	    '        } else if let Some(lib) = flag.strip_prefix("-l") {' \
-	    '            libs.push(lib);' \
-	    '        }' \
-	    '    }' \
-	    '    for lib in libs {' \
-	    '        let is_static = lib_dirs.iter().any(|dir| {' \
-	    '            let path = std::path::Path::new(dir).join(format!("lib{}.a", lib));' \
-	    '            path.exists()' \
-	    '        });' \
-	    '        let kind = if is_static { "static" } else { "dylib" };' \
-	    '        println!("cargo:rustc-link-lib={}={}", kind, lib);' \
-	    '    }' \
-	    '}' > build.rs; \
-	fi
-	$(if $(filter dynamic,$(LINK)),RUSTFLAGS="$(RUSTFLAGS) $(FLTK_LDIRS) $(FLTK_LIBS) -C link-arg=-fuse-ld=bfd" )cargo build $(CARGO_ARGS)
+	RUSTFLAGS="$(RUSTFLAGS) $(FLTK_LDIRS) $(FLTK_LIBS)" cargo build $(CARGO_ARGS)
 
 $(BINARY): build
 
