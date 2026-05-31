@@ -35,5 +35,5 @@ build() {
 
 package() {
   cd "$srcdir/$pkgname-$pkgver"
-  make install PREFIX=/usr DESTDIR="$pkgdir"
+  make LINK="$_link" install PREFIX=/usr DESTDIR="$pkgdir"
 }
