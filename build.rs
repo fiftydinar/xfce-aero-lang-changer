@@ -1,9 +1,9 @@
 fn main() {
-    // On glibc Linux, LLD cannot resolve _dl_x86_cpu_features and other
-    // glibc internals referenced by the static FLTK library. Force GNU ld
-    // to avoid this. Harmless on musl or where GNU ld is already the default.
-    #[cfg(target_os = "linux")]
-    println!("cargo:rustc-link-arg=-fuse-ld=bfd");
+    // LLD cannot resolve glibc internals (_dl_x86_cpu_features) from static
+    // FLTK on glibc, so force GNU ld.  On musl there's no such issue.
+    if std::env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("gnu") {
+        println!("cargo:rustc-link-arg=-fuse-ld=bfd");
+    }
 
     let output = std::process::Command::new("fltk-config")
         .args(["--use-images", "--ldstaticflags"])
