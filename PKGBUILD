@@ -23,7 +23,7 @@ if [ "$_link" = "static" ]; then
   makedepends=('cargo' 'make' 'cmake')
 else
   depends=('fltk')
-  makedepends=('cargo' 'make' 'cmake')
+  makedepends=('cargo' 'make' 'cmake' 'fltk')
 fi
 
 source=("xfce-aero-lang-changer-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/tags/v$pkgver.tar.gz")
