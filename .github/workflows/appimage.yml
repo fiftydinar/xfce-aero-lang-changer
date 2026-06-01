@@ -113,6 +113,7 @@ jobs:
           cat <<'NOTES_EOF' > /tmp/release-notes.md
           ${{ github.event.inputs.description }}
           NOTES_EOF
+          sed -i 's/!!newline!!/\n/g' /tmp/release-notes.md
 
       - name: Create release (manual dispatch)
         if: github.event_name == 'workflow_dispatch'
