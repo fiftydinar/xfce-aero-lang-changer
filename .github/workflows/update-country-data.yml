@@ -41,7 +41,7 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: update country_names.json from latest CLDR + system data"
+          commit-message: "chore: update country_names.json from latest CLDR data"
           title: "Update country data (${{ steps.diff.outputs.diff_size }} lines changed)"
           body: |
             Automated update of `data/country_names.json` from:
