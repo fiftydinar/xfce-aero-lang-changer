@@ -14,7 +14,43 @@ on:
         default: ""
 
 jobs:
+  prepare:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    outputs:
+      version: ${{ steps.vars.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump Cargo.toml and create pkgbuild/PKGBUILD
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+
+          sed -i "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
+
+          mkdir -p pkgbuild
+          cp PKGBUILD pkgbuild/
+          sed -i "s/^pkgver=.*/pkgver=$VERSION/" pkgbuild/PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=1/" pkgbuild/PKGBUILD
+          sed -i "s|^source=.*|source=(\"\$pkgname-\$pkgver.tar.gz::https://github.com/${GITHUB_REPOSITORY}/archive/refs/heads/main.tar.gz\")|" pkgbuild/PKGBUILD
+          sed -i "s|^sha512sums=.*|sha512sums=('SKIP')|" pkgbuild/PKGBUILD
+
+          git config user.email "srbaizoki4@tuta.io"
+          git config user.name "fiftydinar"
+          git add Cargo.toml pkgbuild/
+          git commit -m "Release v$VERSION"
+          git push
+
+      - name: Upload pkgbuild artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pkgbuild-dir
+          path: pkgbuild/
+
   build:
+    needs: [prepare]
+    if: always() && (needs.prepare.result == 'success' || needs.prepare.result == 'skipped')
     name: ${{ matrix.arch }}
     runs-on: ${{ matrix.runs-on }}
     strategy:
@@ -28,8 +64,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pkgforge-dev/anylinux-setup-action@v2
+
+      - name: Download pkgbuild (manual dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/download-artifact@v4
+        with:
+          name: pkgbuild-dir
+          path: pkgbuild/
+
       - name: Make AppImage
-        run: /bin/sh ./appimage/make-appimage.sh
+        run: |
+          PKGDIR="${{ github.event_name == 'workflow_dispatch' && 'pkgbuild' || '.' }}"
+          /bin/sh ./appimage/make-appimage.sh "$PKGDIR"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -41,18 +88,23 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           pattern: AppImage-*
           merge-multiple: true
 
-      - name: Determine tag
-        id: tag
+      - name: Determine tag and version
+        id: vars
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
-            echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+            TAG="${{ github.event.release.tag_name }}"
+            echo "TAG=$TAG" >> $GITHUB_OUTPUT
+            echo "VERSION=${TAG#v}" >> $GITHUB_OUTPUT
           else
-            echo "TAG=v${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+            VERSION="${{ github.event.inputs.version }}"
+            echo "TAG=v$VERSION" >> $GITHUB_OUTPUT
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           fi
 
       - name: Create release (manual dispatch)
@@ -60,9 +112,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view "${{ steps.tag.outputs.TAG }}" &>/dev/null \
-            || gh release create "${{ steps.tag.outputs.TAG }}" \
-              --title "${{ steps.tag.outputs.TAG }}" \
+          TAG="${{ steps.vars.outputs.TAG }}"
+          gh release view "$TAG" &>/dev/null \
+            || gh release create "$TAG" \
+              --title "$TAG" \
               --notes "${{ github.event.inputs.description }}" \
               --generate-notes
 
@@ -71,5 +124,29 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           for f in *.AppImage *.AppImage.zsync; do
-            [ -f "$f" ] && gh release upload "${{ steps.tag.outputs.TAG }}" "$f" --clobber
+            [ -f "$f" ] && gh release upload "${{ steps.vars.outputs.TAG }}" "$f" --clobber
           done
+
+      - name: Update PKGBUILD with tag tarball SHA (manual dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.vars.outputs.TAG }}"
+          VERSION="${{ steps.vars.outputs.VERSION }}"
+          TARBALL_URL="https://github.com/${GITHUB_REPOSITORY}/archive/refs/tags/${TAG}.tar.gz"
+
+          git pull origin main
+
+          echo "Computing sha512sum for $TARBALL_URL ..."
+          SHA=$(curl -sL "$TARBALL_URL" | sha512sum | cut -d' ' -f1)
+          echo "sha512sum=$SHA"
+
+          sed -i "s/^pkgver=.*/pkgver=$VERSION/" PKGBUILD
+          sed -i "s/^sha512sums=.*/sha512sums=('$SHA')/" PKGBUILD
+
+          git config user.email "srbaizoki4@tuta.io"
+          git config user.name "fiftydinar"
+          git add PKGBUILD
+          git commit -m "Update PKGBUILD to v$VERSION"
+          git push

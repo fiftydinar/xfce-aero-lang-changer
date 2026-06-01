@@ -2,18 +2,19 @@
 
 set -eu
 
-# Install package through PKGBUILD
-curr_dir="$(pwd)"
-cd ./pkgbuild
-make-aur-package
-cd "$curr_dir"
+# First argument: path to directory containing PKGBUILD (default: current dir)
+PKGDIR="${1:-.}"
 
-# Add debloated packages
+# Build and install from PKGBUILD
+export SKIP_INTEGRITY_CHECK=1
+(cd "$PKGDIR" && make-aur-package)
+
+# Install debloated libs needed for AppImage
 get-debloated-pkgs --add-common --prefer-nano
 
 ARCH=$(uname -m)
 export ARCH
-export OUTPATH=./dist
+export OUTPATH="$PWD/dist"
 export UPINFO="gh-releases-zsync|${GITHUB_REPOSITORY%/*}|${GITHUB_REPOSITORY#*/}|latest|*$ARCH.AppImage.zsync"
 export ICON="https://raw.githubusercontent.com/madmaxms/iconpack-obsidian/4cccdd3f2a1ac20bc0beea31ffb7a2ccdc424842/Obsidian/apps/96/preferences-desktop-locale.svg"
 export DESKTOP=/usr/share/applications/xfce-aero-lang-changer.desktop
