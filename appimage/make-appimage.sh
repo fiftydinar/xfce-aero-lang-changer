@@ -2,24 +2,17 @@
 
 set -eu
 
+# Install package through PKGBUILD
+make-aur-package
+
+# Add debloated packages
+get-debloated-pkgs --add-common --prefer-nano
+
 ARCH=$(uname -m)
 export ARCH
 export OUTPATH=./dist
-export ADD_HOOKS="self-updater.hook"
 export UPINFO="gh-releases-zsync|${GITHUB_REPOSITORY%/*}|${GITHUB_REPOSITORY#*/}|latest|*$ARCH.AppImage.zsync"
-
-# Build and install from local PKGBUILD
-# Skip integrity check since sha512sums change with each release
-export SKIP_INTEGRITY_CHECK=1
-make-aur-package
-
-# Find system icon
-ICON_PATH=$(find /usr/share/icons -name "preferences-desktop-locale" -type f 2>/dev/null | head -1)
-if [ -z "$ICON_PATH" ]; then
-  ICON_PATH=$(find /usr/share/icons -name "preferences-desktop-locale*" -type f 2>/dev/null | head -1)
-fi
-
-export ICON="${ICON_PATH:-preferences-desktop-locale}"
+export ICON="https://raw.githubusercontent.com/madmaxms/iconpack-obsidian/4cccdd3f2a1ac20bc0beea31ffb7a2ccdc424842/Obsidian/apps/96/preferences-desktop-locale.svg"
 export DESKTOP=/usr/share/applications/xfce-aero-lang-changer.desktop
 
 # Bundle binary, deps, desktop, and icon into AppDir
