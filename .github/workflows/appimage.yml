@@ -34,7 +34,7 @@ jobs:
           sed -i "s/^_use_appimage=.*/_use_appimage=false/" pkgbuild/PKGBUILD
           sed -i "s/^pkgver=.*/pkgver=$VERSION/" pkgbuild/PKGBUILD
           sed -i "s/^pkgrel=.*/pkgrel=1/" pkgbuild/PKGBUILD
-          sed -i "s|^source=.*|source=(\"\$pkgname-\$pkgver.tar.gz::https://github.com/${GITHUB_REPOSITORY}/archive/refs/heads/main.tar.gz\")|" pkgbuild/PKGBUILD
+          sed -i "s|^  source=.*|  source=(\"\$pkgname-\$pkgver.tar.gz::https://github.com/${GITHUB_REPOSITORY}/archive/refs/heads/main.tar.gz\")|" pkgbuild/PKGBUILD
           sed -i "s|^  sha512sums=(.*|  sha512sums=('SKIP')|" pkgbuild/PKGBUILD
           # tarball from main branch extracts to $pkgname-main, not $pkgname-$pkgver
           sed -i 's|cd "\$srcdir/\$pkgname-\$pkgver"|cd "\$srcdir/\$pkgname-main"|' pkgbuild/PKGBUILD
