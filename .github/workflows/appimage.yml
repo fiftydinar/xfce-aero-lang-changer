@@ -41,7 +41,7 @@ jobs:
           git config user.email "srbaizoki4@tuta.io"
           git config user.name "fiftydinar"
           git add Cargo.toml pkgbuild/
-          git commit -m "Release v$VERSION"
+          git diff --cached --quiet || git commit -m "Release v$VERSION"
           git push
 
       - name: Upload pkgbuild artifact
