@@ -51,7 +51,7 @@ This guard exists because the tool writes to a file that only certain session st
 
 ## Installing
 
-### Install - AppImage via make (easy)
+### Install - AppImage via make (generic, cross-distro compatible)
 
 Clone the repo and let `make` download the correct AppImage for your architecture and install everything:
 
@@ -69,36 +69,6 @@ This installs the AppImage to `/usr/local/bin` and places the `.desktop` file in
 sudo make uninstall
 ```
 
-### Install - AppImage (manual)
-
-Pre-built AppImages for x86_64 and aarch64 are available on the [Releases page](https://github.com/fiftydinar/xfce-aero-lang-changer/releases). Download, make executable, and run:
-
-```sh
-chmod +x xfce-aero-lang-changer-*.AppImage
-./xfce-aero-lang-changer-*.AppImage
-```
-
-To integrate it into the XFCE settings menu, extract the `.desktop` file from the AppImage:
-
-```
-/path/to/appimage --appimage-extract xfce-aero-lang-changer.desktop.desktop
-```
-
-Edit `Exec=` in the extracted `./AppDir/xfce-aero-lang-changer.desktop.desktop` to point to your AppImage path, then:
-
-```
-cp -v ./AppDir/xfce-aero-lang-changer.desktop.desktop "${XDG_DATA_HOME:-$HOME/.local/share}/applications/xfce-aero-lang-changer.desktop"
-rm -rfv ./AppDir ./squashfs-root
-```
-
-Then reboot.
-
-**Uninstall (change path to the AppImage accordingly):**
-```
-rm -fv "${XDG_DATA_HOME:-$HOME/.local/share}/applications/xfce-aero-lang-changer.desktop"
-rm -fv /path/to/appimage
-```
-
 ### Build - make (generic)
 
 ```sh
@@ -112,4 +82,5 @@ sudo make uninstall
 
 ### Build - PKGBUILD (Arch Linux based)
 
-PKGBUILD for Arch Linux is in the root of the repo. Set `_use_appimage=true` near the top to skip the Rust build and use the pre-built AppImage instead (adds aarch64 support).
+PKGBUILD for Arch Linux is in the root of the repo.
+Set `_use_appimage=true` near the top to skip the Rust build and use the pre-built AppImage instead.
