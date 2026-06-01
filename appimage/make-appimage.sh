@@ -5,8 +5,10 @@ set -eu
 # First argument: path to directory containing PKGBUILD (default: current dir)
 PKGDIR="${1:-.}"
 
-# Build and install from PKGBUILD
-export SKIP_INTEGRITY_CHECK=1
+# Skip integrity check only when building from master (not a tagged release)
+if grep -q 'refs/heads/main' "$PKGDIR/PKGBUILD" 2>/dev/null; then
+  export SKIP_INTEGRITY_CHECK=1
+fi
 (cd "$PKGDIR" && make-aur-package)
 
 # Install debloated libs needed for AppImage
