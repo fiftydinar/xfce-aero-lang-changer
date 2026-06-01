@@ -26,16 +26,29 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check for changes
+        id: diff
+        run: |
+          if ! git diff --quiet data/country_names.json; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "diff_size=$(git diff data/country_names.json | wc -l)" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create Pull Request
+        if: steps.diff.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: update country_names.json from latest CLDR + system data"
-          title: "Update country data"
+          title: "Update country data (${{ steps.diff.outputs.diff_size }} lines changed)"
           body: |
             Automated update of `data/country_names.json` from:
             - Latest CLDR release (territory translations)
-            - Manual overrides for CLDR fallback cases
+            - Manual overrides for empty languages
+
+            **Changes:** ${{ steps.diff.outputs.diff_size }} lines modified.
           branch: automated/update-country-data
           base: main
           labels: automated, country-data
