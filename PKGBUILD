@@ -14,7 +14,7 @@ depends=("${_x11_libs[@]}" 'fontconfig' 'pango' 'cairo' 'glib2')
 makedepends=('cargo' 'make' 'cmake')
 
 source=("xfce-aero-lang-changer-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/tags/v$pkgver.tar.gz")
-sha512sums=('2c05b82b53df8d61acc571ffddd72672ababb8b6f958b352863437ccb6e5d765f57c0e9bcb3784a4bf639d3349ee5ce2a02c926c31337f53d8c9c6c84bf302bf')
+sha512sums=('ca391c81d1665a53b7fd825ef8bc05c91a3fd91a1df311bcf0d7bcbe9b454b33aaf6454346cb4aebbe17ef2308a1cac12957c739e7a158f83435c076f84d02e6')
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
