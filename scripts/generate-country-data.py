@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate data/country_names.json from CLDR + system locale data.
+"""Regenerate data/country_names.json from CLDR territory data.
 
 Sources (in priority order, later overrides earlier):
   1. Existing data/country_names.json baseline (preserves languages not in CLDR)
@@ -17,7 +17,6 @@ import json
 import os
 import re
 import shutil
-import subprocess
 import sys
 import tempfile
 import urllib.request
@@ -43,8 +42,7 @@ def _github_request(url: str, *, data: bytes | None = None, timeout: int = 30) -
         headers["Authorization"] = f"Bearer {_GITHUB_TOKEN}"
     return urllib.request.Request(url, data=data, headers=headers)
 
-# Manual override entries for languages with no CLDR or system data.
-# These take highest priority.
+# Manual overrides for CLDR fallback cases. Highest priority.
 MANUAL_OVERRIDES: dict[str, dict[str, str]] = {
     "crh": {"RU": "Русие Федерациясы", "UA": "Ukraina"},
     "kv": {"RU": "Россия"},
@@ -86,9 +84,7 @@ SCRIPT_VARIANT_MAP: dict[str, str] = {
     "ug-Latn": "ug@latin",
 }
 
-# Known main locales whose territories file we should check.
-# The CLDR release has dozens of locales; we filter to those that look
-# meaningful. This list is built dynamically from the extracted zip.
+# Locales to exclude when parsing CLDR data.
 SKIP_LOCALES = {"root", "und", "zxx"}
 
 
@@ -303,7 +299,7 @@ def main() -> None:
             data[lang] = territories
         log(f"  Manual override applied to: {lang}")
 
-    # 7. Write output preserving existing key order so diffs show real changes.
+    # 6. Write output preserving existing key order so diffs show real changes.
     output_data: dict[str, dict[str, str]] = {}
     for lang in existing:
         if lang in data:
