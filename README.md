@@ -51,11 +51,11 @@ This guard exists because the tool writes to a file that only certain session st
 
 ## Installing
 
-### AppImage Install (generic)
+### Install - AppImage (generic)
 
 AppImage is uploaded in Releases for x86_64 and aarch64 architectures, you can just download it, set as executable and run.
 
-### Make Building (generic)
+### Building - make (generic)
 
 ```sh
 make && sudo make install
