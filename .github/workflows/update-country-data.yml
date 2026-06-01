@@ -16,11 +16,11 @@ jobs:
     container:
       image: docker.io/library/archlinux:latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Install dependencies
         run: |
-          pacman -Syu --noconfirm git python 2>&1 | tail -5
-
-      - uses: actions/checkout@v4
+          pacman -Syu --noconfirm git python glibc-locales 2>&1 | tail -5
 
       - name: Generate all UTF-8 locales
         run: |
@@ -35,30 +35,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check for changes
-        id: diff
-        run: |
-          if ! git diff --quiet data/country_names.json; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "diff_size=$(git diff data/country_names.json | wc -l)" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Create Pull Request
-        if: steps.diff.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: update country_names.json from latest CLDR + system data"
-          title: "Update country data (${{ steps.diff.outputs.diff_size }} lines changed)"
+          title: "Update country data"
           body: |
             Automated update of `data/country_names.json` from:
             - Latest CLDR release (territory translations)
             - System locale LC_ADDRESS extraction from Arch Linux
             - Manual overrides for CLDR fallback cases
-
-            **Changes:** ${{ steps.diff.outputs.diff_size }} lines modified.
           branch: automated/update-country-data
           base: main
           labels: automated, country-data
