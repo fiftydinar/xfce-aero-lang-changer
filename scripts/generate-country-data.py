@@ -6,8 +6,7 @@ Sources (in priority order, later overrides earlier):
   2. CLDR JSON release (unicode-org/cldr-json) territory names
   3. Manual overrides (highest priority, fixes CLDR fallbacks like Tatar→Russian)
 
-New CLDR languages are NOT automatically added to avoid large one-time diffs.
-Only languages already present in the file receive CLDR updates.
+New CLDR languages are automatically added alongside existing ones.
 
 Usage:
   # From repo root:
@@ -251,6 +250,7 @@ def map_locale_code(locale_id: str) -> str | None:
 
     return None
 
+
 def main() -> None:
     os.makedirs(DATA_DIR, exist_ok=True)
 
@@ -274,19 +274,24 @@ def main() -> None:
         # 4. Build result: start with existing data, then overlay CLDR updates.
         #    For languages already in the file, replace all entries with CLDR data.
         #    Existing languages NOT in CLDR (e.g. tt@iqtelif not in CLDR 48) keep
-        #    their original entries. New CLDR languages are NOT added automatically
-        #    to avoid large one-time diffs; only existing ones get updated.
+        #    their original entries. New CLDR languages are added automatically.
         data = dict(existing)
 
         cldr_updated = 0
+        cldr_added = 0
         for lang, territories in sorted(cldr.items()):
             if lang in data:
                 if data[lang] != territories:
                     cldr_updated += 1
                 data[lang] = territories
+            else:
+                data[lang] = territories
+                cldr_added += 1
 
         if cldr_updated:
             log(f"  CLDR updates applied to: {cldr_updated} languages")
+        if cldr_added:
+            log(f"  New CLDR languages added: {cldr_added}")
 
     # 5. Apply manual overrides (highest priority).
     #    These fix cases where CLDR falls back to a parent language
