@@ -55,7 +55,7 @@ This guard exists because the tool writes to a file that only certain session st
 
 AppImage is uploaded in Releases for x86_64 and aarch64 architectures, you can just download it, set as executable and run.
 
-### Building - make (generic)
+### Build - make (generic)
 
 ```sh
 make && sudo make install
@@ -66,6 +66,6 @@ Uninstall:
 sudo make uninstall
 ```
 
-### Building - PKGBUILD (Arch Linux based)
+### Build - PKGBUILD (Arch Linux based)
 
 PKGBUILD for Arch Linux is in the root of the repo.
