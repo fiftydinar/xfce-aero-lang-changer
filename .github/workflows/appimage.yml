@@ -77,7 +77,12 @@ jobs:
       - name: Make AppImage
         run: |
           PKGDIR="${{ github.event_name == 'workflow_dispatch' && 'pkgbuild' || '.' }}"
-          /bin/sh ./appimage/make-appimage.sh "$PKGDIR"
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG="v${{ github.event.inputs.version }}"
+          fi
+          /bin/sh ./appimage/make-appimage.sh "$PKGDIR" "$TAG"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

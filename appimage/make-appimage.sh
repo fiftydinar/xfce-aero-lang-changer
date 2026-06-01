@@ -4,6 +4,9 @@ set -eu
 
 # First argument: path to directory containing PKGBUILD (default: current dir)
 PKGDIR="${1:-.}"
+# Second argument: version tag (e.g. v1.0.6), used in AppImage metadata
+VERSION="${2:-}"
+export VERSION
 
 # Skip integrity check only when building from master (not a tagged release)
 if grep -q 'refs/heads/main' "$PKGDIR/PKGBUILD" 2>/dev/null; then
