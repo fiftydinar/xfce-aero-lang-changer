@@ -133,10 +133,10 @@ jobs:
           else
             NOTES_FLAG="--generate-notes"
           fi
-          gh release view "$TAG" &>/dev/null \
-            || gh release create "$TAG" \
-              --title "$TAG" \
-              $NOTES_FLAG
+          gh release delete "$TAG" --yes &>/dev/null || true
+          gh release create "$TAG" \
+            --title "$TAG" \
+            $NOTES_FLAG
 
       - name: Upload to release
         env:
