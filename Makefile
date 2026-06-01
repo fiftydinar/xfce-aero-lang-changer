@@ -3,34 +3,15 @@ BINDIR ?= $(PREFIX)/bin
 DATADIR ?= $(PREFIX)/share
 APPDIR ?= $(DATADIR)/applications
 
-TARGET ?= release
-BINARY := target/$(TARGET)/xfce-aero-lang-changer
-
-# Linking mode: static (bundled fltk) or dynamic (system fltk)
-LINK ?= dynamic
-CARGO_ARGS := --release
-
-ifeq ($(LINK),dynamic)
-  CARGO_ARGS += --no-default-features
-  CARGO_ARGS += --features fltk/system-fltk
-  CARGO_ARGS += --features fltk/system-libjpeg
-  CARGO_ARGS += --features fltk/system-libpng
-  CARGO_ARGS += --features fltk/system-zlib
-else
-  CARGO_ARGS += --features bundled
-endif
-
 .PHONY: all build install uninstall clean
 
 all: build
 
 build:
-	cargo build $(CARGO_ARGS)
+	cargo build --release
 
-$(BINARY): build
-
-install: $(BINARY)
-	install -Dm755 $(BINARY) $(DESTDIR)$(BINDIR)/xfce-aero-lang-changer
+install: build
+	install -Dm755 target/release/xfce-aero-lang-changer $(DESTDIR)$(BINDIR)/xfce-aero-lang-changer
 	install -dm755 $(DESTDIR)$(APPDIR)
 	while IFS= read -r line || [ -n "$$line" ]; do \
 		case "$$line" in \
