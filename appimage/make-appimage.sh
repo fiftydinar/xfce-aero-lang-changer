@@ -3,7 +3,10 @@
 set -eu
 
 # Install package through PKGBUILD
+curr_dir="$(pwd)"
+cd ./pkgbuild
 make-aur-package
+cd "$curr_dir"
 
 # Add debloated packages
 get-debloated-pkgs --add-common --prefer-nano
