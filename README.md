@@ -47,14 +47,13 @@ This guard exists because the tool writes to a file that only certain session st
 
 **Build-time:**
 - Rust toolchain (`cargo`)
-- FLTK library for dynamic builds (`fltk-git` on Arch AUR)
+- CMake (for bundled FLTK build)
 
 ## Building
 
-| Mode | Command |
-|------|---------|
-| Dynamic (system FLTK) | `make` |
-| Static (bundled FLTK) | `make LINK=static` |
+```sh
+make && sudo make install
+```
 
 ## Uninstalling
 
