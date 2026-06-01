@@ -1,27 +1,56 @@
 # Maintainer: fiftydinar <srbaizoki4@tuta.io>
+# Contributor: ...
+
+# Set to "true" to use a pre-built AppImage from GitHub releases instead of
+# building from source.  Removes the Rust/cargo toolchain requirement and
+# adds aarch64 support at the cost of skipping compile-time validation.
+_use_appimage=false
 
 pkgname=xfce-aero-lang-changer
 pkgver=1.0.6
 pkgrel=1
 pkgdesc="GUI language switcher for XFCE with Aero-style theming"
-arch=('x86_64')
 url="https://github.com/fiftydinar/xfce-aero-lang-changer"
 license=('Apache-2.0')
 
-# fltk-sys dynamically links against these regardless of bundling
-_x11_libs=('libx11' 'libxext' 'libxinerama' 'libxcursor' 'libxrender' 'libxfixes' 'libxft')
-depends=("${_x11_libs[@]}" 'fontconfig' 'pango' 'cairo' 'glib2')
-makedepends=('cargo' 'make' 'cmake')
-
-source=("xfce-aero-lang-changer-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/tags/v$pkgver.tar.gz")
-sha512sums=('0e877207dd9a15b2cd2423a2c5180eb9701d85a09e6ca92db05d23d6e3d5990db5f420f0d20da78c9738c5309fe2497924e99ab5cae5aa7123874b26d14a1136')
+if [[ "$_use_appimage" == "true" ]]; then
+  arch=('x86_64' 'aarch64')
+  depends=('glibc')
+  makedepends=('make')
+  source=("$pkgname-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/tags/v$pkgver.tar.gz")
+  source_x86_64=("xfce-aero-lang-changer-x86_64.AppImage::https://github.com/fiftydinar/xfce-aero-lang-changer/releases/download/v$pkgver/xfce-aero-lang-changer-x86_64.AppImage")
+  source_aarch64=("xfce-aero-lang-changer-aarch64.AppImage::https://github.com/fiftydinar/xfce-aero-lang-changer/releases/download/v$pkgver/xfce-aero-lang-changer-aarch64.AppImage")
+  sha512sums_x86_64=(
+    '0e877207dd9a15b2cd2423a2c5180eb9701d85a09e6ca92db05d23d6e3d5990db5f420f0d20da78c9738c5309fe2497924e99ab5cae5aa7123874b26d14a1136'
+    'SKIP'
+  )
+  sha512sums_aarch64=(
+    '0e877207dd9a15b2cd2423a2c5180eb9701d85a09e6ca92db05d23d6e3d5990db5f420f0d20da78c9738c5309fe2497924e99ab5cae5aa7123874b26d14a1136'
+    'SKIP'
+  )
+else
+  arch=('x86_64')
+  _x11_libs=('libx11' 'libxext' 'libxinerama' 'libxcursor' 'libxrender' 'libxfixes' 'libxft')
+  depends=("${_x11_libs[@]}" 'fontconfig' 'pango' 'cairo' 'glib2')
+  makedepends=('cargo' 'make' 'cmake')
+  source=("$pkgname-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/tags/v$pkgver.tar.gz")
+  sha512sums=('0e877207dd9a15b2cd2423a2c5180eb9701d85a09e6ca92db05d23d6e3d5990db5f420f0d20da78c9738c5309fe2497924e99ab5cae5aa7123874b26d14a1136')
+fi
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
-  make
+  if [[ "$_use_appimage" == "true" ]]; then
+    cp "$srcdir"/xfce-aero-lang-changer-*.AppImage .
+  else
+    make
+  fi
 }
 
 package() {
   cd "$srcdir/$pkgname-$pkgver"
-  make install PREFIX=/usr DESTDIR="$pkgdir"
+  if [[ "$_use_appimage" == "true" ]]; then
+    make install-appimage PREFIX=/usr DESTDIR="$pkgdir"
+  else
+    make install PREFIX=/usr DESTDIR="$pkgdir"
+  fi
 }
