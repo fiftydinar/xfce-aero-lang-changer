@@ -49,14 +49,23 @@ This guard exists because the tool writes to a file that only certain session st
 - Rust toolchain (`cargo`)
 - CMake (for bundled FLTK build)
 
-## Building
+## Installing
+
+### AppImage Install (generic)
+
+AppImage is uploaded in Releases for x86_64 and aarch64 architectures, you can just download it, set as executable and run.
+
+### Make Building (generic)
 
 ```sh
 make && sudo make install
 ```
-
-## Uninstalling
+Uninstall:
 
 ```sh
 sudo make uninstall
 ```
+
+### Building - PKGBUILD (Arch Linux based)
+
+PKGBUILD for Arch Linux is in the root of the repo.
