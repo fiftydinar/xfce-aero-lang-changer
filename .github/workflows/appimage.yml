@@ -111,8 +111,8 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.description != ''
         run: |
           cat <<'NOTES_EOF' > /tmp/release-notes.md
-${{ github.event.inputs.description }}
-NOTES_EOF
+          ${{ github.event.inputs.description }}
+          NOTES_EOF
 
       - name: Create release (manual dispatch)
         if: github.event_name == 'workflow_dispatch'
