@@ -16,7 +16,7 @@ if [[ "$_use_appimage" == "true" ]]; then
   arch=('x86_64' 'aarch64')
   depends=()
   makedepends=('make')
-  source=("$pkgname-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/tags/v$pkgver.tar.gz")
+  source=("$pkgname-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/heads/main.tar.gz")
   source_x86_64=("xfce-aero-lang-changer-x86_64.AppImage::https://github.com/fiftydinar/xfce-aero-lang-changer/releases/download/v$pkgver/xfce-aero-lang-changer-x86_64.AppImage")
   source_aarch64=("xfce-aero-lang-changer-aarch64.AppImage::https://github.com/fiftydinar/xfce-aero-lang-changer/releases/download/v$pkgver/xfce-aero-lang-changer-aarch64.AppImage")
   sha512sums_x86_64=(
@@ -32,7 +32,7 @@ else
   _x11_libs=('libx11' 'libxext' 'libxinerama' 'libxcursor' 'libxrender' 'libxfixes' 'libxft')
   depends=("${_x11_libs[@]}" 'fontconfig' 'pango' 'cairo' 'glib2')
   makedepends=('cargo' 'make' 'cmake')
-  source=("$pkgname-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/tags/v$pkgver.tar.gz")
+  source=("$pkgname-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/heads/main.tar.gz")
   sha512sums=('SKIP')
 fi
 
