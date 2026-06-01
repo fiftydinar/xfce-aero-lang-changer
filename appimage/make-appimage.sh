@@ -23,6 +23,7 @@ export OUTPATH="$PWD/dist"
 export UPINFO="gh-releases-zsync|${GITHUB_REPOSITORY%/*}|${GITHUB_REPOSITORY#*/}|latest|*$ARCH.AppImage.zsync"
 export ICON="https://raw.githubusercontent.com/madmaxms/iconpack-obsidian/4cccdd3f2a1ac20bc0beea31ffb7a2ccdc424842/Obsidian/apps/96/preferences-desktop-locale.svg"
 export DESKTOP=/usr/share/applications/xfce-aero-lang-changer.desktop
+export APPNAME=xfce-aero-lang-changer
 
 # Bundle binary, deps, desktop, and icon into AppDir
 quick-sharun /usr/bin/xfce-aero-lang-changer
