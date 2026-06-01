@@ -2,8 +2,7 @@
 # Contributor: ...
 
 # Set to "true" to use a pre-built AppImage from GitHub releases instead of
-# building from source.  Removes the Rust/cargo toolchain requirement and
-# adds aarch64 support at the cost of skipping compile-time validation.
+# building from source.  Removes the Rust/cargo toolchain requirement
 _use_appimage=false
 
 pkgname=xfce-aero-lang-changer
