@@ -3,7 +3,7 @@
 
 Sources (in priority order, later overrides earlier):
   1. CLDR JSON release (unicode-org/cldr-json) territory names
-  2. System LC_ADDRESS country_name extraction
+  2. System LC_ADDRESS country_name extraction (only for languages not in CLDR)
   3. Manual overrides (for languages with no data from either source)
 
 Usage:
@@ -72,7 +72,7 @@ SCRIPT_VARIANT_MAP: dict[str, str] = {
     "tg-Cyrl": "tg",
     "tg-Persn": "tg@persian",
     "tt-Cyrl": "tt",
-    "tt-Latn": "tt@latin",
+    "tt-Latn": "tt@iqtelif",
     "sah-Cyrl": "sah",
     "sah-Latn": "sah@latin",
     "tk-Cyrl": "tk@cyrillic",
@@ -206,11 +206,10 @@ def parse_cldr_territories(base_dir: str) -> dict[str, dict[str, str]]:
         if lang_code is None:
             continue
 
-        # Only keep alpha territory codes (e.g. US, GB, RU) and numeric UN M.49
-        # regions (e.g. 001, 002, 150). The numeric ones are for region groupings.
+        # Keep all territory codes, including alt-variant and alt-short variants
         filtered: dict[str, str] = {}
         for code, name in territories.items():
-            if isinstance(name, str) and (code.isalpha() or code.isdigit()):
+            if isinstance(name, str):
                 filtered[code] = name
 
         if filtered:
@@ -318,7 +317,9 @@ def extract_system_locales() -> dict[str, dict[str, str]]:
                     modifier = loc.split("@")[1].lower()
 
                 lang_code = lang
-                if modifier in ("latin", "latn", "iqtelif"):
+                if modifier == "iqtelif":
+                    lang_code = f"{lang}@iqtelif"
+                elif modifier in ("latin", "latn"):
                     lang_code = f"{lang}@latin"
                 elif modifier in ("cyrillic", "cyrl"):
                     lang_code = f"{lang}@cyrillic"
@@ -350,12 +351,11 @@ def main() -> None:
         sys_data = extract_system_locales()
         log(f"  System data: {len(sys_data)} languages")
 
-        # 4. Merge: CLDR first, then system data overrides
+        # 4. Merge: system data only for languages missing from CLDR.
+        #    System LC_ADDRESS country_name only covers the locale's own country
+        #    (e.g. de_DE → "Deutschland" for DE), so it must not override CLDR.
         for lang, territories in sys_data.items():
-            if lang in data:
-                data[lang].update(territories)
-                log(f"  System override applied to: {lang}")
-            else:
+            if lang not in data:
                 data[lang] = territories
                 log(f"  System data (new lang): {lang}")
 
