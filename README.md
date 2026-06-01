@@ -55,6 +55,21 @@ This guard exists because the tool writes to a file that only certain session st
 
 AppImage is uploaded in Releases for x86_64 and aarch64 architectures, you can just download it, set as executable and run.
 
+To integrate it into the XFCE settings, do these commands (change path to the AppImage accordingly):
+```
+/path/to/appimage --appimage-extract xfce-aero-lang-changer.desktop.desktop
+cp -v ./AppDir/xfce-aero-lang-changer.desktop.desktop "${XDG_DATA_HOME:-$HOME/.local/share}/applications/xfce-aero-lang-changer.desktop"
+rm -rfv ./AppDir ./squashfs-root
+```
+
+Then reboot.
+
+Uninstall (change path to the AppImage accordingly):
+```
+rm -fv "${XDG_DATA_HOME:-$HOME/.local/share}/applications/xfce-aero-lang-changer.desktop"
+rm -fv /path/to/appimage
+```
+
 ### Build - make (generic)
 
 ```sh
