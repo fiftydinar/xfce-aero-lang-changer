@@ -107,17 +107,28 @@ jobs:
             echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           fi
 
+      - name: Write release notes
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.description != ''
+        run: |
+          cat <<'NOTES_EOF' > /tmp/release-notes.md
+${{ github.event.inputs.description }}
+NOTES_EOF
+
       - name: Create release (manual dispatch)
         if: github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="${{ steps.vars.outputs.TAG }}"
+          if [ -f /tmp/release-notes.md ]; then
+            NOTES_FLAG="--notes-file /tmp/release-notes.md"
+          else
+            NOTES_FLAG="--generate-notes"
+          fi
           gh release view "$TAG" &>/dev/null \
             || gh release create "$TAG" \
               --title "$TAG" \
-              --notes "${{ github.event.inputs.description }}" \
-              --generate-notes
+              $NOTES_FLAG
 
       - name: Upload to release
         env:
