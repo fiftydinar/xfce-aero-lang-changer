@@ -667,6 +667,8 @@ fn main() {
     let theme = WidgetTheme::new(ThemeType::Aero);
     theme.apply();
 
+    app::set_wm_class("xfce-aero-lang-changer", "xfce-aero-lang-changer");
+
     let available = Rc::new(RefCell::new(get_available_locales()));
     let current = get_current_locale();
 
