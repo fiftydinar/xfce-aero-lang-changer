@@ -6,7 +6,7 @@
 _use_appimage=false
 
 pkgname=xfce-aero-lang-changer
-pkgver=1.0.7
+pkgver=1.0.8
 pkgrel=1
 pkgdesc="GUI language switcher for XFCE with Aero-style theming"
 url="https://github.com/fiftydinar/xfce-aero-lang-changer"
