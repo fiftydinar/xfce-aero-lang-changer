@@ -2,9 +2,12 @@
 """Regenerate data/country_names.json from CLDR + system locale data.
 
 Sources (in priority order, later overrides earlier):
-  1. CLDR JSON release (unicode-org/cldr-json) territory names
-  2. System LC_ADDRESS country_name extraction (only for languages not in CLDR)
-  3. Manual overrides (for languages with no data from either source)
+  1. Existing data/country_names.json baseline (preserves languages not in CLDR)
+  2. CLDR JSON release (unicode-org/cldr-json) territory names
+  3. Manual overrides (highest priority, fixes CLDR fallbacks like Tatar→Russian)
+
+New CLDR languages are NOT automatically added to avoid large one-time diffs.
+Only languages already present in the file receive CLDR updates.
 
 Usage:
   # From repo root:
@@ -50,6 +53,8 @@ MANUAL_OVERRIDES: dict[str, dict[str, str]] = {
     "niu": {"NU": "Niuē", "NZ": "Niu Silani"},
     "quz": {"PE": "Piruw"},
     "shs": {"CA": "Kanata"},
+    # tt/RU: CLDR falls back to Russian "Россия", system locale has correct Tatar "Русия"
+    "tt": {"RU": "Русия"},
 }
 
 # CLDR locale code to our @modifier suffix mapping.
@@ -232,12 +237,12 @@ def map_locale_code(locale_id: str) -> str | None:
         base = locale_id.split("-")[0]
         return f"{base}@valencia"
 
-    # Generic pattern: lang[-Script][-Region]
-    m = re.match(r"^([a-z]{2,3})(?:-[A-Z][a-z]{3})?(?:-[A-Z]{2})?$", locale_id)
+    # Generic pattern: lang[-Region] (without script component)
+    m = re.match(r"^([a-z]{2,3})(?:-[A-Z]{2})?$", locale_id)
     if m:
         return m.group(1)
 
-    # If locale has a script variant we don't know about, add it as @script
+    # If locale has a script variant not in SCRIPT_VARIANT_MAP, add it as @script
     m = re.match(r"^([a-z]{2,3})-([A-Z][a-z]{3})(?:-[A-Z]{2})?$", locale_id)
     if m:
         base = m.group(1)
@@ -272,6 +277,8 @@ def extract_system_locales() -> dict[str, dict[str, str]]:
 
     for loc in locales:
         if loc in SKIP_LOCALES or loc == "C" or loc == "POSIX":
+            continue
+        if ".utf8" not in loc.lower():
             continue
 
         # Map locale code to our format
@@ -336,46 +343,73 @@ def extract_system_locales() -> dict[str, dict[str, str]]:
 def main() -> None:
     os.makedirs(DATA_DIR, exist_ok=True)
 
+    # 1. Load existing data as the baseline, so we preserve languages not in CLDR
+    existing: dict[str, dict[str, str]] = {}
+    if os.path.isfile(OUTPUT):
+        with open(OUTPUT, encoding="utf-8") as f:
+            existing = json.load(f)
+        log(f"Loaded existing data: {len(existing)} languages")
+
     with tempfile.TemporaryDirectory(prefix="cldr-") as tmpdir:
-        # 1. Fetch CLDR data
+        # 2. Fetch CLDR data
         version = fetch_latest_cldr_version()
         cldr_dir = download_cldr_zip(version, tmpdir)
 
-        # 2. Parse CLDR territory data
+        # 3. Parse CLDR territory data
         log("Parsing CLDR territory data...")
-        data = parse_cldr_territories(cldr_dir)
-        log(f"  CLDR data: {len(data)} languages")
+        cldr = parse_cldr_territories(cldr_dir)
+        log(f"  CLDR data: {len(cldr)} languages")
 
-        # 3. Extract system locale data
-        log("Extracting system locale data...")
-        sys_data = extract_system_locales()
-        log(f"  System data: {len(sys_data)} languages")
+        # 4. Build result: start with existing data, then overlay CLDR updates.
+        #    For languages already in the file, replace all entries with CLDR data.
+        #    Existing languages NOT in CLDR (e.g. tt@iqtelif not in CLDR 48) keep
+        #    their original entries. New CLDR languages are NOT added automatically
+        #    to avoid large one-time diffs; only existing ones get updated.
+        data = dict(existing)
 
-        # 4. Merge: system data only for languages missing from CLDR.
-        #    System LC_ADDRESS country_name only covers the locale's own country
-        #    (e.g. de_DE → "Deutschland" for DE), so it must not override CLDR.
-        for lang, territories in sys_data.items():
-            if lang not in data:
-                data[lang] = territories
-                log(f"  System data (new lang): {lang}")
-
-        # 5. Apply manual overrides (highest priority)
-        for lang, territories in MANUAL_OVERRIDES.items():
+        cldr_updated = 0
+        for lang, territories in sorted(cldr.items()):
             if lang in data:
-                data[lang].update(territories)
-            else:
+                if data[lang] != territories:
+                    cldr_updated += 1
                 data[lang] = territories
-            log(f"  Manual override applied to: {lang}")
 
-        # 6. Write output, sorted for reproducibility
-        log(f"Writing {OUTPUT} ({len(data)} languages)...")
-        sorted_data = dict(sorted(data.items()))
-        for lang in sorted_data:
-            sorted_data[lang] = dict(sorted(sorted_data[lang].items()))
+        if cldr_updated:
+            log(f"  CLDR updates applied to: {cldr_updated} languages")
 
-        with open(OUTPUT, "w", encoding="utf-8") as f:
-            json.dump(sorted_data, f, ensure_ascii=False, indent=1)
-            f.write("\n")
+    # 5. Apply manual overrides (highest priority).
+    #    These fix cases where CLDR falls back to a parent language
+    #    (e.g. Tatar → Russian).
+    for lang, territories in MANUAL_OVERRIDES.items():
+        if lang in data:
+            data[lang].update(territories)
+        else:
+            data[lang] = territories
+        log(f"  Manual override applied to: {lang}")
+
+    # 7. Write output preserving existing key order so diffs show real changes.
+    output_data: dict[str, dict[str, str]] = {}
+    for lang in existing:
+        if lang in data:
+            # Preserve original territory code order for existing languages;
+            # append new codes (from CLDR/manual) after existing ones.
+            merged = {}
+            for code in existing[lang]:
+                if code in data[lang]:
+                    merged[code] = data[lang][code]
+            for code, name in data[lang].items():
+                if code not in merged:
+                    merged[code] = name
+            output_data[lang] = merged
+    # Append any new languages not in the existing file
+    for lang in data:
+        if lang not in output_data:
+            output_data[lang] = dict(sorted(data[lang].items()))
+
+    log(f"Writing {OUTPUT} ({len(output_data)} languages)...")
+    with open(OUTPUT, "w", encoding="utf-8") as f:
+        json.dump(output_data, f, ensure_ascii=False, indent=1)
+        f.write("\n")
 
     log("Done!")
 
