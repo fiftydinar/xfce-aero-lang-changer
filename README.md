@@ -57,16 +57,22 @@ I am showing the local installation steps below only, advanced users can install
 
 AppImage is uploaded in Releases for x86_64 and aarch64 architectures, you can just download it, set as executable and run.
 
-To integrate it into the XFCE settings, do these commands (change path to the AppImage accordingly):
+To integrate it into the XFCE settings, do these commands (change path to the AppImage accordingly):  
 ```
 /path/to/appimage --appimage-extract xfce-aero-lang-changer.desktop.desktop
+```
+
+Change the `Exec=` filed in the extracted `./AppDir/xfce-aero-lang-changer.desktop.desktop` file to reflect the path to your AppImage.
+
+Then run this in terminal:
+```
 cp -v ./AppDir/xfce-aero-lang-changer.desktop.desktop "${XDG_DATA_HOME:-$HOME/.local/share}/applications/xfce-aero-lang-changer.desktop"
 rm -rfv ./AppDir ./squashfs-root
 ```
 
 Then reboot.
 
-Uninstall (change path to the AppImage accordingly):
+**Uninstall (change path to the AppImage accordingly):**
 ```
 rm -fv "${XDG_DATA_HOME:-$HOME/.local/share}/applications/xfce-aero-lang-changer.desktop"
 rm -fv /path/to/appimage
@@ -77,7 +83,7 @@ rm -fv /path/to/appimage
 ```sh
 make && sudo make install
 ```
-Uninstall:
+**Uninstall:**
 
 ```sh
 sudo make uninstall
