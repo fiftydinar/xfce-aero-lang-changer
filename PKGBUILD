@@ -14,7 +14,7 @@ license=('Apache-2.0')
 
 if [[ "$_use_appimage" == "true" ]]; then
   arch=('x86_64' 'aarch64')
-  depends=('glibc')
+  depends=()
   makedepends=('make')
   source=("$pkgname-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/tags/v$pkgver.tar.gz")
   source_x86_64=("xfce-aero-lang-changer-x86_64.AppImage::https://github.com/fiftydinar/xfce-aero-lang-changer/releases/download/v$pkgver/xfce-aero-lang-changer-x86_64.AppImage")
