@@ -21,10 +21,6 @@ Presents all generated system languages in a table with native names. Filter as 
 Made primarely for the purposes of my XFCE custom image distribution:  
 https://github.com/fiftydinar/xfce-aerolike
 
-```sh
-make && sudo make install
-```
-
 ## How it works
 
 The tool writes `LANG=<language>` to `$XDG_CONFIG_HOME/locale.conf`. On Arch Linux and derivatives, this file is sourced by `/etc/profile.d/locale.sh` at login. It also injects the same `LANG` export into `~/.xprofile` for sessions that read that file.
