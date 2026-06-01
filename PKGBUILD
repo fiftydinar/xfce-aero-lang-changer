@@ -29,7 +29,7 @@ if [[ "$_use_appimage" == "true" ]]; then
     'SKIP'
   )
 else
-  arch=('x86_64')
+  arch=('x86_64' 'aarch64')
   _x11_libs=('libx11' 'libxext' 'libxinerama' 'libxcursor' 'libxrender' 'libxfixes' 'libxft')
   depends=("${_x11_libs[@]}" 'fontconfig' 'pango' 'cairo' 'glib2')
   makedepends=('cargo' 'make' 'cmake')
