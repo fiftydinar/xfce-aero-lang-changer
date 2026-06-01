@@ -13,22 +13,13 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
-    container:
-      image: docker.io/library/archlinux:latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          pacman -Syu --noconfirm git python glibc-locales 2>&1 | tail -5
-
-      - name: Generate all UTF-8 locales
-        run: |
-          sed -i 's/^#\([a-z].*UTF-8\)/\1/' /etc/locale.gen
-          locale-gen 2>&1 | tail -3
-
-      - name: Show installed locales count
-        run: locale -a | grep -c ".utf8"
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
       - name: Generate country data
         run: python3 scripts/generate-country-data.py
@@ -44,7 +35,6 @@ jobs:
           body: |
             Automated update of `data/country_names.json` from:
             - Latest CLDR release (territory translations)
-            - System locale LC_ADDRESS extraction from Arch Linux
             - Manual overrides for CLDR fallback cases
           branch: automated/update-country-data
           base: main
