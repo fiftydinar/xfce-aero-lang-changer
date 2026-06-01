@@ -1,7 +1,7 @@
 # Maintainer: fiftydinar <srbaizoki4@tuta.io>
 
 pkgname=xfce-aero-lang-changer
-pkgver=1.0.5
+pkgver=1.0.6
 pkgrel=1
 pkgdesc="GUI language switcher for XFCE with Aero-style theming"
 arch=('x86_64')
@@ -14,7 +14,7 @@ depends=("${_x11_libs[@]}" 'fontconfig' 'pango' 'cairo' 'glib2')
 makedepends=('cargo' 'make' 'cmake')
 
 source=("xfce-aero-lang-changer-$pkgver.tar.gz::https://github.com/fiftydinar/xfce-aero-lang-changer/archive/refs/tags/v$pkgver.tar.gz")
-sha512sums=('21ded14d671d111f2acb64fd705ae249823fc9f0c8c08675ca706b4c88ec80cc82709a8b13fc2849012278122ad3b7f976626f1b48ec5aea3f036823863c871f')
+sha512sums=('2c05b82b53df8d61acc571ffddd72672ababb8b6f958b352863437ccb6e5d765f57c0e9bcb3784a4bf639d3349ee5ce2a02c926c31337f53d8c9c6c84bf302bf')
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
