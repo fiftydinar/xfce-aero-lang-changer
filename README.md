@@ -53,9 +53,9 @@ This guard exists because the tool writes to a file that only certain session st
 
 ### Install - AppImage (generic)
 
-AppImage is uploaded in Releases for x86_64 and aarch64 architectures, you can just download it, set as executable and run.
-
 I am showing the local installation steps below only, advanced users can install it system-wide if they want.
+
+AppImage is uploaded in Releases for x86_64 and aarch64 architectures, you can just download it, set as executable and run.
 
 To integrate it into the XFCE settings, do these commands (change path to the AppImage accordingly):
 ```
