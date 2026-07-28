@@ -62,7 +62,7 @@ This installs the AppImage to `/usr/local/bin` and places the `.desktop` file in
 It downloads the latest version by default, you can force the version with `APPIMAGE_VERSION` variable.
 
 ```
-sudo make install-appimage APPIMAGE_VERSION=v1.0.4
+sudo make install-appimage APPIMAGE_VERSION=v1.0.6
 ```
 
 **Uninstall:**
