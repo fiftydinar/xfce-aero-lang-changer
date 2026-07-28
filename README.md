@@ -54,7 +54,7 @@ Clone the repo and let `make` download the correct AppImage for your architectur
 ```sh
 git clone https://github.com/fiftydinar/xfce-aero-lang-changer.git
 cd xfce-aero-lang-changer
-make install-appimage
+sudo make install-appimage
 ```
 
 This installs the AppImage to `/usr/local/bin` and places the `.desktop` file in the applications menu.
