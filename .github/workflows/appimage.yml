@@ -28,6 +28,8 @@ jobs:
           VERSION="${{ github.event.inputs.version }}"
 
           sed -i "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
+          # Sync Cargo.lock with the bumped version (other deps stay pinned)
+          cargo check
 
           mkdir -p pkgbuild
           cp PKGBUILD pkgbuild/
@@ -41,7 +43,7 @@ jobs:
 
           git config user.email "srbaizoki4@tuta.io"
           git config user.name "fiftydinar"
-          git add Cargo.toml pkgbuild/
+          git add Cargo.toml Cargo.lock pkgbuild/
           git diff --cached --quiet || git commit -m "Release v$VERSION"
           git push
 

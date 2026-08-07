@@ -10,7 +10,7 @@ APPIMAGE_VERSION ?= latest
 all: build
 
 build:
-	cargo build --release
+	cargo build --release --locked
 
 install: build
 	install -Dm755 target/release/xfce-aero-lang-changer $(DESTDIR)$(BINDIR)/xfce-aero-lang-changer
