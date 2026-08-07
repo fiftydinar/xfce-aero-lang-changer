@@ -682,7 +682,7 @@ dependencies = [
 
 [[package]]
 name = "xfce-aero-lang-changer"
-version = "1.0.5"
+version = "1.0.8"
 dependencies = [
  "dirs",
  "fltk",

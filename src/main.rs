@@ -1,8 +1,8 @@
-use std::{cell::RefCell, cmp, collections::HashMap, path::PathBuf, process::Command, rc::Rc};
+use std::{cell::RefCell, cmp, collections::HashMap, path::{Path, PathBuf}, process::Command, rc::Rc};
 use fltk::{
     app, button::Button, dialog,
     enums::{Align, CallbackTrigger, Color, FrameType},
-    frame::Frame, input::Input, prelude::*,
+    frame::Frame, image::SvgImage, input::Input, prelude::*,
     table::{TableContext, TableRow}, text::{TextBuffer, TextDisplay, WrapMode},
     window::Window,
 };
@@ -365,56 +365,56 @@ fn cyr_to_lat(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for c in s.chars() {
         match c {
-            'А' => out.push_str("A"), 'Б' => out.push_str("B"),
-            'В' => out.push_str("V"), 'Г' => out.push_str("G"),
-            'Д' => out.push_str("D"), 'Ђ' => out.push_str("Đ"),
-            'Е' => out.push_str("E"), 'Ж' => out.push_str("Ž"),
-            'З' => out.push_str("Z"), 'И' => out.push_str("I"),
-            'Ј' => out.push_str("J"), 'К' => out.push_str("K"),
-            'Л' => out.push_str("L"), 'Љ' => out.push_str("Lj"),
-            'М' => out.push_str("M"), 'Н' => out.push_str("N"),
-            'Њ' => out.push_str("Nj"), 'О' => out.push_str("O"),
-            'П' => out.push_str("P"), 'Р' => out.push_str("R"),
-            'С' => out.push_str("S"), 'Т' => out.push_str("T"),
-            'Ћ' => out.push_str("Ć"), 'У' => out.push_str("U"),
-            'Ф' => out.push_str("F"), 'Х' => out.push_str("H"),
-            'Ц' => out.push_str("C"), 'Ч' => out.push_str("Č"),
-            'Џ' => out.push_str("Dž"), 'Ш' => out.push_str("Š"),
-            'а' => out.push_str("a"), 'б' => out.push_str("b"),
-            'в' => out.push_str("v"), 'г' => out.push_str("g"),
-            'д' => out.push_str("d"), 'ђ' => out.push_str("đ"),
-            'е' => out.push_str("e"), 'ж' => out.push_str("ž"),
-            'з' => out.push_str("z"), 'и' => out.push_str("i"),
-            'ј' => out.push_str("j"), 'к' => out.push_str("k"),
-            'л' => out.push_str("l"), 'љ' => out.push_str("lj"),
-            'м' => out.push_str("m"), 'н' => out.push_str("n"),
-            'њ' => out.push_str("nj"), 'о' => out.push_str("o"),
-            'п' => out.push_str("p"), 'р' => out.push_str("r"),
-            'с' => out.push_str("s"), 'т' => out.push_str("t"),
-            'ћ' => out.push_str("ć"), 'у' => out.push_str("u"),
-            'ф' => out.push_str("f"), 'х' => out.push_str("h"),
-            'ц' => out.push_str("c"), 'ч' => out.push_str("č"),
-            'џ' => out.push_str("dž"), 'ш' => out.push_str("š"),
+            'А' => out.push('A'), 'Б' => out.push('B'),
+            'В' => out.push('V'), 'Г' => out.push('G'),
+            'Д' => out.push('D'), 'Ђ' => out.push('Đ'),
+            'Е' => out.push('E'), 'Ж' => out.push('Ž'),
+            'З' => out.push('Z'), 'И' => out.push('I'),
+            'Ј' => out.push('J'), 'К' => out.push('K'),
+            'Л' => out.push('L'), 'Љ' => out.push_str("Lj"),
+            'М' => out.push('M'), 'Н' => out.push('N'),
+            'Њ' => out.push_str("Nj"), 'О' => out.push('O'),
+            'П' => out.push('P'), 'Р' => out.push('R'),
+            'С' => out.push('S'), 'Т' => out.push('T'),
+            'Ћ' => out.push('Ć'), 'У' => out.push('U'),
+            'Ф' => out.push('F'), 'Х' => out.push('H'),
+            'Ц' => out.push('C'), 'Ч' => out.push('Č'),
+            'Џ' => out.push_str("Dž"), 'Ш' => out.push('Š'),
+            'а' => out.push('a'), 'б' => out.push('b'),
+            'в' => out.push('v'), 'г' => out.push('g'),
+            'д' => out.push('d'), 'ђ' => out.push('đ'),
+            'е' => out.push('e'), 'ж' => out.push('ž'),
+            'з' => out.push('z'), 'и' => out.push('i'),
+            'ј' => out.push('j'), 'к' => out.push('k'),
+            'л' => out.push('l'), 'љ' => out.push_str("lj"),
+            'м' => out.push('m'), 'н' => out.push('n'),
+            'њ' => out.push_str("nj"), 'о' => out.push('o'),
+            'п' => out.push('p'), 'р' => out.push('r'),
+            'с' => out.push('s'), 'т' => out.push('t'),
+            'ћ' => out.push('ć'), 'у' => out.push('u'),
+            'ф' => out.push('f'), 'х' => out.push('h'),
+            'ц' => out.push('c'), 'ч' => out.push('č'),
+            'џ' => out.push_str("dž"), 'ш' => out.push('š'),
             'ё' => out.push_str("yo"), 'Ё' => out.push_str("Yo"),
             'є' => out.push_str("ye"), 'Є' => out.push_str("Ye"),
-            'і' => out.push_str("i"), 'І' => out.push_str("I"),
+            'і' => out.push('i'), 'І' => out.push('I'),
             'ї' => out.push_str("yi"), 'Ї' => out.push_str("Yi"),
-            'ґ' => out.push_str("g"), 'Ґ' => out.push_str("G"),
+            'ґ' => out.push('g'), 'Ґ' => out.push('G'),
             'ў' => out.push_str("o'"), 'Ў' => out.push_str("O'"),
-            'қ' => out.push_str("q"), 'Қ' => out.push_str("Q"),
+            'қ' => out.push('q'), 'Қ' => out.push('Q'),
             'ғ' => out.push_str("g'"), 'Ғ' => out.push_str("G'"),
-            'ҳ' => out.push_str("h"), 'Ҳ' => out.push_str("H"),
-            'й' => out.push_str("j"), 'Й' => out.push_str("J"),
-            'ы' => out.push_str("y"), 'Ы' => out.push_str("Y"),
+            'ҳ' => out.push('h'), 'Ҳ' => out.push('H'),
+            'й' => out.push('j'), 'Й' => out.push('J'),
+            'ы' => out.push('y'), 'Ы' => out.push('Y'),
             'ь' => {}, 'Ь' => {},
             'ъ' => {}, 'Ъ' => {},
             'щ' => out.push_str("shch"), 'Щ' => out.push_str("Shch"),
-            'э' => out.push_str("e"), 'Э' => out.push_str("E"),
+            'э' => out.push('e'), 'Э' => out.push('E'),
             'я' => out.push_str("ya"), 'Я' => out.push_str("Ya"),
             'ю' => out.push_str("yu"), 'Ю' => out.push_str("Yu"),
             'ҷ' => out.push_str("ch"), 'Ҷ' => out.push_str("Ch"),
-            'ӣ' => out.push_str("i"), 'Ӣ' => out.push_str("I"),
-            'ӯ' => out.push_str("u"), 'Ӯ' => out.push_str("U"),
+            'ӣ' => out.push('i'), 'Ӣ' => out.push('I'),
+            'ӯ' => out.push('u'), 'Ӯ' => out.push('U'),
             _ => out.push(c),
         }
     }
@@ -429,17 +429,76 @@ fn transliterate(s: &str) -> String {
     }
 }
 
+fn write_atomic(path: &Path, content: &str) -> Result<(), String> {
+    let tmp = PathBuf::from(format!("{}.tmp", path.display()));
+    std::fs::write(&tmp, content)
+        .map_err(|e| format!("Cannot write {}: {}", tmp.display(), e))?;
+    std::fs::rename(&tmp, path)
+        .map_err(|e| format!("Cannot write {}: {}", path.display(), e))?;
+    Ok(())
+}
+
 fn apply_locale(locale: &str) -> Result<(), String> {
     let cfg_dir = config_dir();
-    std::fs::create_dir_all(&cfg_dir).map_err(|e| format!("Cannot create config dir: {}", e))?;
-
-    std::fs::write(cfg_dir.join("locale.conf"), format!("LANG={}\n", locale))
-        .map_err(|e| format!("Cannot write locale.conf: {}", e))?;
+    std::fs::create_dir_all(&cfg_dir)
+        .map_err(|e| format!("Cannot create config dir: {}", e))?;
 
     let start_marker = "# --- xfce-aero-lang-changer locale ---";
     let end_marker = "# --- end xfce-aero-lang-changer locale ---";
+    let lang_line = format!("LANG={}", locale);
     let locale_export = format!("export LANG={}", locale);
 
+    // ---------- locale.conf ----------
+    let locale_conf_path = cfg_dir.join("locale.conf");
+    let mut conf = String::new();
+    if locale_conf_path.exists() {
+        conf = std::fs::read_to_string(&locale_conf_path)
+            .map_err(|e| format!("Cannot read locale.conf: {}", e))?;
+    }
+
+    let start_idx = conf.find(start_marker);
+    let end_idx = conf.find(end_marker);
+    if let (Some(s), Some(e)) = (start_idx, end_idx) {
+        let mut block = String::new();
+        let mut found_lang = false;
+        let mut content_start = s + start_marker.len();
+        if conf.as_bytes().get(content_start) == Some(&b'\n') {
+            content_start += 1;
+        }
+        for line in conf[content_start..e].lines() {
+            let t = line.trim_start();
+            if t.starts_with("LANG=") || t.starts_with("export LANG=") {
+                if !found_lang {
+                    block.push_str(&lang_line);
+                    block.push('\n');
+                    found_lang = true;
+                }
+            } else {
+                block.push_str(line);
+                block.push('\n');
+            }
+        }
+        if !found_lang {
+            block.push_str(&lang_line);
+            block.push('\n');
+        }
+        let new_block = format!("{}\n{}{}\n", start_marker, block, end_marker);
+        let mut after = e + end_marker.len();
+        while after < conf.len() && conf.as_bytes()[after] == b'\n' {
+            after += 1;
+        }
+        conf.replace_range(s..after, &new_block);
+    } else {
+        if !conf.is_empty() {
+            if !conf.ends_with('\n') {
+                conf.push('\n');
+            }
+            conf.push('\n');
+        }
+        conf.push_str(&format!("{}\n{}\n{}\n", start_marker, lang_line, end_marker));
+    }
+
+    // ---------- .xprofile ----------
     let xprofile_path = dirs::home_dir().unwrap_or_default().join(".xprofile");
     let mut content = String::new();
     if xprofile_path.exists() {
@@ -449,21 +508,34 @@ fn apply_locale(locale: &str) -> Result<(), String> {
 
     let start_idx = content.find(start_marker);
     let end_idx = content.find(end_marker);
+    let section = format!("{}\n{}\n{}\n", start_marker, locale_export, end_marker);
     if let (Some(s), Some(e)) = (start_idx, end_idx) {
-        let new_section = format!("{}\n{}\n{}\n", start_marker, locale_export, end_marker);
-        let after = e + end_marker.len();
-        content.replace_range(s..after, &new_section);
+        let mut after = e + end_marker.len();
+        while after < content.len() && content.as_bytes()[after] == b'\n' {
+            after += 1;
+        }
+        content.replace_range(s..after, &section);
     } else {
-        if !content.is_empty() && !content.ends_with('\n') {
+        if !content.is_empty() {
+            if !content.ends_with('\n') {
+                content.push('\n');
+            }
             content.push('\n');
         }
-        content.push_str(&format!("\n{}\n{}\n{}\n", start_marker, locale_export, end_marker));
+        content.push_str(&section);
     }
 
-    std::fs::write(&xprofile_path, content)
-        .map_err(|e| format!("Cannot write ~/.xprofile: {}", e))?;
+    write_atomic(&xprofile_path, &content)?;
+    write_atomic(&locale_conf_path, &conf)?;
 
     Ok(())
+}
+
+fn set_win_icon(win: &mut impl WindowExt) {
+    let svg = SvgImage::from_data(include_str!("../data/icon.svg"))
+        .expect("Embedded icon.svg is invalid");
+    let icon = svg.copy_sized(256, 256);
+    win.set_icon(Some(icon));
 }
 
 fn logout_xfce() {
@@ -526,6 +598,7 @@ fn show_aero_alert(t: &Trans, title: &str, msg: &str) {
     ok_btn.set_label_size(11);
     ok_btn.set_callback(move |_| app::quit());
 
+    set_win_icon(&mut win);
     win.end();
     win.show();
     let _ = app::run();
@@ -592,12 +665,13 @@ fn show_aero_msg(t: &Trans, human_name: &str, locale: &str) -> Option<i32> {
         }
     });
 
+    set_win_icon(&mut win);
     win.end();
     win.show();
     remove_close_button(title);
     let _ = app::run();
 
-    let ret = result.borrow().clone();
+    let ret = *result.borrow();
     ret
 }
 
@@ -805,10 +879,10 @@ fn main() {
                     let bg = if is_sel {
                         let t = 0.15f64;
                         let r = (0u8 as f64 * t + 0u8 as f64 * (1.0 - t)) as u8;
-                        let g = (100u8 as f64 * t + 148u8 as f64 * (1.0 - t)) as u8;
-                        let b = (92u8 as f64 * t + 136u8 as f64 * (1.0 - t)) as u8;
+                        let g = (100_f64 * t + 148_f64 * (1.0 - t)) as u8;
+                        let b = (92_f64 * t + 136_f64 * (1.0 - t)) as u8;
                         Color::from_rgb(r, g, b)
-                    } else if r % 2 == 0 {
+                    } else if r.is_multiple_of(2) {
                         Color::from_hex(0xF0F2F5)
                     } else {
                         Color::White
@@ -919,6 +993,7 @@ fn main() {
         w.redraw();
     });
 
+    set_win_icon(&mut win);
     win.end();
     win.show();
 
@@ -956,4 +1031,263 @@ fn main() {
     quit_btn.set_callback(move |_| app::quit());
 
     let _ = app::run();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const START: &str = "# --- xfce-aero-lang-changer locale ---";
+    const END: &str = "# --- end xfce-aero-lang-changer locale ---";
+
+    fn test_home() -> PathBuf {
+        std::env::temp_dir().join(format!("xalc_test_{}", std::process::id()))
+    }
+
+    fn set_up() {
+        let home = test_home();
+        let _ = std::fs::remove_dir_all(&home);
+        std::fs::create_dir_all(home.join(".config")).unwrap();
+        std::env::set_var("HOME", &home);
+        std::env::set_var("XDG_CONFIG_HOME", home.join(".config"));
+    }
+
+    fn read(path: &Path) -> String {
+        std::fs::read_to_string(path).unwrap_or_default()
+    }
+
+    fn conf_path() -> PathBuf {
+        config_dir().join("locale.conf")
+    }
+
+    fn assert_no_tmp_files() {
+        for dir in [config_dir(), dirs::home_dir().unwrap()] {
+            for entry in std::fs::read_dir(&dir).unwrap() {
+                let name = entry.unwrap().file_name().into_string().unwrap();
+                assert!(!name.ends_with(".tmp"), "leftover temp file: {}", name);
+            }
+        }
+    }
+
+    // The managed block exactly as the tool writes it into locale.conf.
+    fn block(lang: &str) -> String {
+        format!("{}\nLANG={}\n{}\n", START, lang, END)
+    }
+
+    // The managed block exactly as the tool writes it into ~/.xprofile.
+    fn xprofile_block(lang: &str) -> String {
+        format!("{}\nexport LANG={}\n{}\n", START, lang, END)
+    }
+
+    fn xprofile_path() -> PathBuf {
+        dirs::home_dir().unwrap().join(".xprofile")
+    }
+
+    // Writes `input` to locale.conf (or removes the file when None), applies the
+    // locale, and asserts the resulting locale.conf matches `expected` byte-for-byte.
+    fn assert_apply(input: Option<&str>, locale: &str, expected: &str) {
+        let path = conf_path();
+        match input {
+            Some(c) => std::fs::write(&path, c).unwrap(),
+            None => {
+                let _ = std::fs::remove_file(&path);
+            }
+        }
+        apply_locale(locale)
+            .unwrap_or_else(|e| panic!("apply_locale({}) failed: {}", locale, e));
+        assert_eq!(read(&path), expected, "input: {:?}, locale: {}", input, locale);
+        assert_no_tmp_files();
+    }
+
+    #[test]
+    fn locale_conf_scenarios() {
+        set_up();
+
+        // --- Fresh / empty files ---
+
+        // A. No locale.conf at all: first run on a clean system.
+        assert_apply(None, "sr_RS.UTF-8", &block("sr_RS.UTF-8"));
+
+        // .xprofile does not exist by default; the tool creates it.
+        assert_eq!(read(&xprofile_path()), xprofile_block("sr_RS.UTF-8"));
+
+        // B. Config dir itself doesn't exist yet (create_dir_all path).
+        let cfg = config_dir();
+        let _ = std::fs::remove_dir_all(&cfg);
+        apply_locale("nb_NO.UTF-8").unwrap();
+        assert_eq!(read(&conf_path()), block("nb_NO.UTF-8"));
+
+        // C. Empty file.
+        assert_apply(Some(""), "en_US.UTF-8", &block("en_US.UTF-8"));
+
+        // --- Upstream-style content. The tool manages the *home* locale.conf
+        // ($XDG_CONFIG_HOME/locale.conf, i.e. ~/.config/locale.conf) which is
+        // sourced on top of /etc/locale.conf. Its content uses the same
+        // KEY=VALUE form as files produced by `localectl set-locale`. ---
+
+        // D. Default: a single `LANG=en_US.UTF-8` line, as installed.
+        assert_apply(
+            Some("LANG=en_US.UTF-8\n"),
+            "de_DE.UTF-8",
+            &("LANG=en_US.UTF-8\n\n".to_string() + &block("de_DE.UTF-8")),
+        );
+
+        // E. Default plus common LC_* overrides.
+        assert_apply(
+            Some("LANG=en_US.UTF-8\nLC_TIME=sr_RS.UTF-8\nLC_MESSAGES=de_DE.UTF-8\n"),
+            "pl_PL.UTF-8",
+            &("LANG=en_US.UTF-8\nLC_TIME=sr_RS.UTF-8\nLC_MESSAGES=de_DE.UTF-8\n\n".to_string() + &block("pl_PL.UTF-8")),
+        );
+
+        // F. With LC_ALL present as well.
+        assert_apply(
+            Some("LANG=en_US.UTF-8\nLC_ALL=en_US.UTF-8\n"),
+            "it_IT.UTF-8",
+            &("LANG=en_US.UTF-8\nLC_ALL=en_US.UTF-8\n\n".to_string() + &block("it_IT.UTF-8")),
+        );
+
+        // G. Comments and blank lines survive.
+        assert_apply(
+            Some("# system locale\nLANG=en_US.UTF-8\n\nLC_PAPER=hr_HR.UTF-8\n# end\n"),
+            "nl_NL.UTF-8",
+            &("# system locale\nLANG=en_US.UTF-8\n\nLC_PAPER=hr_HR.UTF-8\n# end\n\n".to_string() + &block("nl_NL.UTF-8")),
+        );
+
+        // --- Formats users actually end up with in the file ---
+
+        // H. Last line without a trailing newline.
+        assert_apply(
+            Some("LANG=en_US.UTF-8"),
+            "de_DE.UTF-8",
+            &("LANG=en_US.UTF-8\n\n".to_string() + &block("de_DE.UTF-8")),
+        );
+
+        // I. `export LANG=` form.
+        assert_apply(
+            Some("export LANG=en_US.UTF-8\n"),
+            "sv_SE.UTF-8",
+            &("export LANG=en_US.UTF-8\n\n".to_string() + &block("sv_SE.UTF-8")),
+        );
+
+        // J. Quoted value.
+        assert_apply(
+            Some("LANG=\"en_US.UTF-8\"\n"),
+            "sv_SE.UTF-8",
+            &("LANG=\"en_US.UTF-8\"\n\n".to_string() + &block("sv_SE.UTF-8")),
+        );
+
+        // K. Lowercase encoding variant (`en_US.utf8`).
+        assert_apply(
+            Some("LANG=en_US.utf8\n"),
+            "fr_FR.UTF-8",
+            &("LANG=en_US.utf8\n\n".to_string() + &block("fr_FR.UTF-8")),
+        );
+
+        // L. CRLF endings: existing lines kept as-is, block appended.
+        assert_apply(
+            Some("LANG=en_US.UTF-8\r\nLC_TIME=sr_RS.UTF-8\r\n"),
+            "cs_CZ.UTF-8",
+            &("LANG=en_US.UTF-8\r\nLC_TIME=sr_RS.UTF-8\r\n\n".to_string() + &block("cs_CZ.UTF-8")),
+        );
+
+        // M. Duplicate LANG lines outside the block stay untouched.
+        assert_apply(
+            Some("LANG=en_US.UTF-8\nLANG=de_DE.UTF-8\n"),
+            "ro_RO.UTF-8",
+            &("LANG=en_US.UTF-8\nLANG=de_DE.UTF-8\n\n".to_string() + &block("ro_RO.UTF-8")),
+        );
+
+        // --- Existing managed block ---
+
+        // N. Block with LANG + other keys inside: only LANG replaced, rest kept.
+        assert_apply(
+            Some(&format!("{}\nLANG=en_US.UTF-8\nLC_TIME=de_DE.UTF-8\n{}\n", START, END)),
+            "pl_PL.UTF-8",
+            &format!("{}\nLANG=pl_PL.UTF-8\nLC_TIME=de_DE.UTF-8\n{}\n", START, END),
+        );
+
+        // O. Block without any LANG inside: LANG appended at the end of the block.
+        assert_apply(
+            Some(&format!("{}\nLC_TIME=de_DE.UTF-8\n{}\n", START, END)),
+            "it_IT.UTF-8",
+            &format!("{}\nLC_TIME=de_DE.UTF-8\nLANG=it_IT.UTF-8\n{}\n", START, END),
+        );
+
+        // P. `export LANG=` inside the block is normalized to plain `LANG=`.
+        assert_apply(
+            Some(&format!("{}\nexport LANG=xx_XX.UTF-8\n{}\n", START, END)),
+            "uk_UA.UTF-8",
+            &block("uk_UA.UTF-8"),
+        );
+
+        // Q. Duplicate LANG lines inside the block collapse to one.
+        assert_apply(
+            Some(&format!("{}\nLANG=a\nLANG=b\n{}\n", START, END)),
+            "fi_FI.UTF-8",
+            &block("fi_FI.UTF-8"),
+        );
+
+        // R. Blank lines inside the block are preserved.
+        assert_apply(
+            Some(&format!("{}\n\nLANG=en_US.UTF-8\n\n{}\n", START, END)),
+            "da_DK.UTF-8",
+            &format!("{}\n\nLANG=da_DK.UTF-8\n\n{}\n", START, END),
+        );
+
+        // S. Block in the middle of user content: both sides preserved.
+        assert_apply(
+            Some(&format!(
+                "LC_PAPER=hr_HR.UTF-8\n{}\nLANG=en_US.UTF-8\n{}\nLC_MESSAGES=de_DE.UTF-8\n",
+                START, END
+            )),
+            "es_ES.UTF-8",
+            &format!(
+                "LC_PAPER=hr_HR.UTF-8\n{}\nLANG=es_ES.UTF-8\n{}\nLC_MESSAGES=de_DE.UTF-8\n",
+                START, END
+            ),
+        );
+
+        // T. User content after the block is preserved and stable across re-runs.
+        let after = block("en_US.UTF-8") + "LC_PAPER=hr_HR.UTF-8\n";
+        assert_apply(Some(&after), "el_GR.UTF-8", &(block("el_GR.UTF-8") + "LC_PAPER=hr_HR.UTF-8\n"));
+        let after2 = block("el_GR.UTF-8") + "LC_PAPER=hr_HR.UTF-8\n";
+        assert_apply(Some(&after2), "pt_PT.UTF-8", &(block("pt_PT.UTF-8") + "LC_PAPER=hr_HR.UTF-8\n"));
+
+        // U. Idempotency: re-applying and alternating locales never accumulates
+        // blank lines or duplicates the block.
+        let seed = "LANG=en_US.UTF-8\n".to_string() + &block("en_US.UTF-8");
+        assert_apply(Some(&seed), "en_US.UTF-8", &seed);
+        for i in 0..10 {
+            let loc = if i % 2 == 0 { "de_DE.UTF-8" } else { "hr_HR.UTF-8" };
+            let expected = "LANG=en_US.UTF-8\n".to_string() + &block(loc);
+            assert_apply(Some(&expected), loc, &expected);
+        }
+
+        // V. Locale names with @modifier and unusual forms pass through untouched.
+        assert_apply(None, "sr_RS.UTF-8@latin", &block("sr_RS.UTF-8@latin"));
+
+        // W. Unwritable config dir surfaces as an error, nothing left behind.
+        let mut perms = std::fs::metadata(&cfg).unwrap().permissions();
+        perms.set_readonly(true);
+        std::fs::set_permissions(&cfg, perms).unwrap();
+        let res = apply_locale("en_US.UTF-8");
+        assert!(res.is_err(), "expected error on read-only config dir, got: {:?}", res);
+        // Restore writability so the remaining assertions run on a normal dir.
+        #[allow(clippy::permissions_set_readonly_false)]
+        let mut perms = std::fs::metadata(&cfg).unwrap().permissions();
+        #[allow(clippy::permissions_set_readonly_false)]
+        perms.set_readonly(false);
+        std::fs::set_permissions(&cfg, perms).unwrap();
+        assert_no_tmp_files();
+    }
+
+    #[test]
+    fn embedded_icon_parses_and_scales() {
+        let svg = SvgImage::from_data(include_str!("../data/icon.svg")).expect("icon parses");
+        let mut icon = svg.copy_sized(256, 256);
+        assert_eq!(icon.w(), 256);
+        assert_eq!(icon.h(), 256);
+        icon.normalize();
+        assert!(!icon.to_rgb_data().is_empty());
+    }
 }
